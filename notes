@@ -27,5 +27,21 @@ provides the exact seek time in the video in which the play begins, while the
 `PlayID` field (in combination with the gamekey) uniquely identifies a single 
 play from the GameCenter JSON data.
 
+Finally, the actual video can now be gathered using the following URL:
+
+  http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/2012/10/07/55577/2_55577_den_ne_2012_h_whole_1_4500.mp4.m3u8
+
+The key things that change in the URL are the date, the game key, the 2 or 3 
+letter team abbreviations and the quality (with 4500 being the highest).
+The away team is first followed by the home team.  The "m3u8" extension makes 
+this compatible with clients that can read Http Live Streams (HLS). Among those 
+clients are `vlc` and `ffmpeg`. For example, to use `ffmpeg` to download and 
+encode the video:
+
+  ffmpeg -i '{THE URL ABOVE}' -strict -2 den_ne_2012_55577.mp4
+
+This command can take a while, particularly if you are downloading the highest 
+quality available.
+
 Thus, play data in `nflgame` can now be trivially mapped to video of that play.
 
