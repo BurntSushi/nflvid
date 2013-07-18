@@ -9,6 +9,15 @@ The actual game key can be found in a comment like so:
 
   <!-- gamekey : 55577 -->
 
+N.B. Game keys are more easily accessible via XML schedules. They are labelled
+as "gsis" ids. Example URL:
+
+  http://www.nfl.com/ajax/scorestrip?season=2012&seasonType=REG&week=1
+
+The game keys have now been added to game meta data in nflgame:
+
+  https://github.com/BurntSushi/nflgame/blob/master/nflgame/schedule.py
+
 These IDs are what the Neulion content provider uses to identify games. Note 
 that the existence of a `gamekey` in a GameCenter page does not necessarily 
 mean there is NFL Game Rewind data. In particular, at this moment in time, it 
@@ -50,3 +59,6 @@ quality available.
 
 Thus, play data in `nflgame` can now be trivially mapped to video of that play.
 
+Here's an example of slicing out a single play from a game:
+
+  ffmpeg -ss 00:14:28.26 -i nyj_ne_2012_55604_1600.mp4 -t 72 -map 0 -strict -2 test.mp4
