@@ -1,0 +1,31 @@
+Game keys must be retrieved for every game played. Each game key will require a 
+one time request to a URL like:
+
+  http://www.nfl.com/gamecenter/2012100709/2012/REG5
+
+The components of the URL can be constructed from data in nflgame/schedule.py.
+
+The actual game key can be found in a comment like so:
+
+  <!-- gamekey : 55577 -->
+
+These IDs are what the Neulion content provider uses to identify games. Note 
+that the existence of a `gamekey` in a GameCenter page does not necessarily 
+mean there is NFL Game Rewind data. In particular, at this moment in time, it 
+appears that only the 2012 season is publicly available.
+
+The gamekey should be associated with the appropriate game in 
+nflgame/schedule.py.
+
+The game key can now be used to access play meta data via an XML API:
+
+  http://smbsolr.cdnak.neulion.com/solr/nflplay/select?fl=*&rows=1000&q=GameId:55577
+
+The key pieces of information here are contained within each `<doc>...</dov>` 
+node. Namely, the `ArchiveTCIN` and `PlayID` fields. The `ArchiveTCIN` field 
+provides the exact seek time in the video in which the play begins, while the 
+`PlayID` field (in combination with the gamekey) uniquely identifies a single 
+play from the GameCenter JSON data.
+
+Thus, play data in `nflgame` can now be trivially mapped to video of that play.
+
