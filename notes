@@ -32,7 +32,8 @@ Finally, the actual video can now be gathered using the following URL:
   http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/2012/10/07/55577/2_55577_den_ne_2012_h_whole_1_4500.mp4.m3u8
 
 The key things that change in the URL are the date, the game key, the 2 or 3 
-letter team abbreviations and the quality (with 4500 being the highest).
+letter team abbreviations and the quality (with 4500 being the highest, and 
+the other choices being: 3000, 2400, 1600, 1200, 800, 400).
 The away team is first followed by the home team.  The "m3u8" extension makes 
 this compatible with clients that can read Http Live Streams (HLS). Among those 
 clients are `vlc` and `ffmpeg`. For example, to use `ffmpeg` to download and 
