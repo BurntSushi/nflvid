@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 import argparse
+import multiprocessing
 import sys
 
 import eventlet
@@ -28,13 +29,21 @@ def is_dead(url):
     return resp['status'] != '200'
 
 
+# Heuristically pick a good default value for threads.
+try:
+    threads = 2 * multiprocessing.cpu_count()
+except NotImplementedError:
+    threads = 4
+
+
 parser = argparse.ArgumentParser(
-    description='Download NFL game footage.')
+    description='Download NFL game footage.',
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 aa = parser.add_argument
 aa('footage_dir', type=str,
    help='The directory containing your footage data. All footage will be '
         'saved as "{footage_dir}/{eid}-{gamekey}.mp4".')
-aa('--threads', default=4, type=int,
+aa('--threads', default=threads, type=int,
    help='The number of concurrent ffmpeg instances to run.')
 aa('--season', default=2012, type=int, choices=[2011, 2012, 2013],
    help='The season to download video from.')
