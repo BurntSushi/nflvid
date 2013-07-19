@@ -1,0 +1,111 @@
+#!/usr/bin/env python2
+
+import argparse
+import sys
+
+import eventlet
+import eventlet.green.subprocess
+
+import httplib2
+http = httplib2.Http()
+
+import nflgame
+import nflgame.schedule
+import nflvid
+
+def eprint(s):
+    print >> sys.stderr, s
+
+def fatal(s):
+    eprint(s)
+    sys.exit(1)
+
+def is_dead(url):
+    resp, _ = http.request(url, 'HEAD')
+    return resp['status'] != '200'
+
+parser = argparse.ArgumentParser(
+    description='Download NFL game footage.')
+aa = parser.add_argument
+aa('footage_dir', type=str,
+   help='The directory containing your footage data. All footage will be '
+        'saved in a special directory hierarchy in this path.')
+aa('--threads', default=2, type=int,
+   help='The number of concurrent ffmpeg instances to run.')
+aa('--season', default=2012, type=int, choices=[2011, 2012, 2013],
+   help='The season to download video from.')
+aa('--weeks', default=None, type=int, nargs='+',
+   help='The weeks to download video from.')
+aa('--teams', default=None, type=str, nargs='+',
+   help='The teams to download video of.')
+aa('--season-type', default='REG', choices=['PRE', 'REG', 'POST'],
+   help='The part of the season to search.')
+aa('--quality', default='1600',
+   choices=['400', '800', '1200', '1600', '2400', '3000', '4500'],
+   help='The video/audio quality to use. 4500 is the best.')
+aa('--dry-run', action='store_true',
+   help='When set, only the first 30 seconds of each game will be downloaded. '
+        'This is useful to test your setup and make sure things are working '
+        'before committing to a long job.')
+aa('--show-url', action='store_true',
+   help='When set, the m3u8 HLS urls will be printed to stdout and the '
+        'program will quit without doing anything else.')
+aa('--show-dead', action='store_true',
+   help='Checks whether a URL is valid or not using a HEAD request. '
+        'Only applicable when --show-url is used.')
+args = parser.parse_args()
+
+if args.threads < 1:
+    fatal('Threads must be at least 1.')
+if args.teams is not None:
+    args.teams = set(map(str.upper, args.teams))
+
+matched = []
+for (season, season_type, week, home, away), info in nflgame.schedule.games:
+    teams = (home, away)
+    if args.season != season:
+        continue
+    if args.season_type != season_type:
+        continue
+    if args.weeks is not None and week not in args.weeks:
+        continue
+    if args.teams is not None and len(args.teams.intersection(teams)) == 0:
+        continue
+
+    g = nflgame.game.Game(info['eid'])
+    if not args.show_url \
+        and nflvid.footage_full(args.footage_dir, g) is not None:
+        continue
+
+    matched.append(nflgame.game.Game(info['eid']))
+
+if len(matched) == 0:
+    fatal('No games matched your search criteria.')
+if args.show_url:
+    for g in matched:
+        url = nflvid.footage_url(g, args.quality)
+        print nflvid._nice_game(g)
+        print url
+        if args.show_dead:
+            if is_dead(url):
+                print 'DEAD'
+            else:
+                print 'ALIVE'
+        print '-' * 80
+    sys.exit(0)
+
+eprint("These are the games that match your search criteria:")
+for g in matched:
+    eprint(nflvid._nice_game(g))
+confirm = raw_input("Are you sure you want to start downloading? [y/n] ")
+if not confirm.lower().startswith('y'):
+    sys.exit(1)
+
+# Okay, we've warned the user enough. Let's start downloading.
+pool = eventlet.greenpool.GreenPool(args.threads)
+
+for g in matched:
+    pool.spawn_n(nflvid.download,
+                 args.footage_dir, g, args.quality, args.dry_run)
+pool.waitall()
+

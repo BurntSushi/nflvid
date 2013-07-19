@@ -1,4 +1,5 @@
 from collections import namedtuple
+import glob
 import gzip
 import os
 import os.path as path
@@ -6,15 +7,116 @@ import socket
 import sys
 import urllib2
 
+import bs4
+
+import eventlet.green.subprocess as subprocess
+
 from nflgame import OrderedDict
 import nflgame.game
-
-import bs4
 
 _xmlf = path.join(path.split(__file__)[0], 'pbp-xml', '%s-%s.xml.gz')
 _xml_base_url = 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml'
 
+_footage_url = 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/%s/%s/%s/%s/2_%s_%s_%s_%s_h_whole_1_%s.mp4.m3u8'
+
 __play_cache = { } # game eid -> play id -> Play
+
+
+def footage_url(gobj, quality='1600'):
+    month, day = gobj.eid[4:6], gobj.eid[6:8]
+    return _footage_url \
+        % (gobj.season(), month, day, gobj.gamekey, gobj.gamekey,
+           gobj.away.lower(), gobj.home.lower(), gobj.season(), quality)
+
+
+def footage_full(footage_dir, gobj):
+    """
+    Returns the path to the full video for a given game inside an nflvid
+    footage directory.
+
+    If the full footage doesn't exist, then None is returned.
+    """
+    fp = _full_path(footage_dir, gobj)
+    if not os.access(fp, os.R_OK):
+        return None
+    return fp
+
+
+def _full_path(footage_dir, g):
+    return path.join(_game_path(footage_dir, g), 'full.mp4')
+
+
+def _game_path(footage_dir, g):
+    return path.join(footage_dir, '%s-%s' % (g.eid, g.gamekey))
+
+
+def _nice_game(gobj):
+    return '(Season: %s, Week: %s, %s)' \
+           % (gobj.schedule['year'], gobj.schedule['week'], gobj)
+
+
+def footage_plays(footage_dir, gobj):
+    """
+    Returns a list of all footage broken down by play inside an nflvid
+    footage directory. The list is sorted numerically by play id.
+
+    If no footage breakdown exists for the game provided, then an empty list
+    is returned.
+    """
+    fp = path.join(_game_path(footage_dir, gobj))
+    if not os.access(fp, os.R_OK):
+        return []
+    entries = filter(lambda f: f != 'full.mp4', os.listdir(fp))
+    return sorted(entries, key=lambda s: int(s[0:-4]))
+
+
+def download(footage_dir, gobj, quality='1600', dry_run=False):
+    """
+    Starts an ffmpeg process to download the full footage of the given
+    game with the quality provided. The qualities available are:
+    400, 800, 1200, 1600, 2400, 3000, 4500 with 4500 being the best.
+
+    The footage will be saved to the following path:
+
+        footage_dir/{eid}-{gamekey}/full.mp4
+
+    If footage is already at that path, then a LookupError is raised.
+    
+    A full game's worth of footage at a quality of 1600 is about 2GB.
+    """
+    fp = _full_path(footage_dir, gobj)
+    if os.access(fp, os.R_OK):
+        raise LookupError('Footage path "%s" already exists.' % fp)
+    os.makedirs(_game_path(footage_dir, gobj))
+
+    url = footage_url(gobj, quality)
+    cmd = ['ffmpeg', '-i', url]
+    if dry_run:
+        cmd += ['-t', '30']
+    cmd += ['-strict', '-2', fp]
+    try:
+        print >> sys.stderr, 'Downloading game %s %s' \
+            % (gobj.eid, _nice_game(gobj))
+        p = subprocess.Popen(cmd,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+        output = p.communicate()[0].strip()
+
+        if p.returncode > 0:
+            err = subprocess.CalledProcessError(p.returncode, cmd)
+            err.output = output
+            raise err
+
+        print >> sys.stderr, 'DONE with game %s' % _nice_game(gobj)
+    except subprocess.CalledProcessError, e:
+        indent = lambda s: '\n'.join(map(lambda l: '    %s' % l, s.split('\n')))
+        print >> sys.stderr, "Could not run '%s' (exit code %d):\n%s" \
+            % (' '.join(cmd), e.returncode, indent(e.output))
+        print >> sys.stderr, 'FAILED to download game %s' % _nice_game(gobj)
+    except OSError, e:
+        print >> sys.stderr, "Could not run '%s' (errno: %d): %s" \
+            % (' '.join(cmd), e.errno, e.strerror)
+        print >> sys.stderr, 'FAILED to download game %s' % _nice_game(gobj)
 
 
 def plays(gobj):
