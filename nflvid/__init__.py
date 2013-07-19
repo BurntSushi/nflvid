@@ -57,16 +57,7 @@ def footage_full(footage_dir, gobj):
     return fp
 
 
-def _full_path(footage_dir, g):
-    return path.join(footage_dir, '%s-%s.mp4' % (g.eid, g.gamekey))
-
-
-def _nice_game(gobj):
-    return '(Season: %s, Week: %s, %s)' \
-           % (gobj.schedule['year'], gobj.schedule['week'], gobj)
-
-
-def footage_plays(footage_dir, gobj):
+def footage_plays(footage_play_dir, gobj):
     """
     Returns a list of all footage broken down by play inside an nflvid
     footage directory. The list is sorted numerically by play id.
@@ -74,11 +65,111 @@ def footage_plays(footage_dir, gobj):
     If no footage breakdown exists for the game provided, then an empty list
     is returned.
     """
-    fp = path.join(footage_dir, '%s-%s' % (gobj.eid, gobj.gamekey))
+    fp = _play_path(footage_play_dir, gobj)
     if not os.access(fp, os.R_OK):
         return []
     entries = filter(lambda f: f != 'full.mp4', os.listdir(fp))
     return sorted(entries, key=lambda s: int(s[0:-4]))
+
+
+def _full_path(footage_dir, g):
+    return path.join(footage_dir, '%s-%s.mp4' % (g.eid, g.gamekey))
+
+
+def _play_path(footage_play_dir, g):
+    return path.join(footage_play_dir, '%s-%s' % (g.eid, g.gamekey))
+
+
+def _nice_game(gobj):
+    return '(Season: %s, Week: %s, %s)' \
+           % (gobj.schedule['year'], gobj.schedule['week'], gobj)
+
+
+def unsliced_plays(footage_play_dir, gobj, dry_run=False):
+    """
+    Scans the game directory inside footage_play_dir and returns a list
+    of plays that haven't been sliced yet. In particular, a play is only
+    considered sliced if the following file is readable, assuming {playid}
+    is its play id::
+
+        {footage_play_dir}/{eid}-{gamekey}/{playid}.mp4
+
+    All plays for the game given that don't fit this criteria will be
+    returned in the list.
+
+    If the list is empty, then all plays for the game have been sliced.
+
+    If dry_run is true, then only the first 10 plays of the game are
+    sliced.
+    """
+    ps = plays(gobj)
+    outdir = _play_path(footage_play_dir, gobj)
+
+    unsliced = []
+    for i, p in enumerate(ps.values()):
+        if dry_run and i >= 10:
+            break
+        pid = p.idstr()
+        if not os.access(path.join(outdir, '%s.mp4' % pid), os.R_OK):
+            unsliced.append(p)
+    return unsliced
+
+
+def slice(footage_play_dir, full_footage_file, gobj, threads=4, dry_run=False):
+    """
+    Uses ffmpeg to slice the given footage file into play-by-play pieces.
+    The full_footage_file should point to a full game downloaded with
+    nflvid-footage and gobj should be the corresponding nflgame.game.Game
+    object.
+
+    The footage_play_dir is where the pieces will be saved::
+
+        {footage_play_dir}/{eid}-{gamekey}/{playid}.mp4
+
+    This function will not duplicate work. If a video file exists for
+    a particular play, then slice will not regenerate it.
+
+    Note that this function uses an eventlet green pool to run multiple
+    ffmpeg instances simultaneously. The maximum number of threads to
+    use is specified by threads. This function only terminates when all
+    threads have finished processing.
+
+    If dry_run is true, then only the first 10 plays of the game are
+    sliced.
+    """
+    outdir = _play_path(footage_play_dir, gobj)
+    if not os.access(outdir, os.R_OK):
+        os.makedirs(outdir)
+
+    pool = eventlet.greenpool.GreenPool(threads)
+    for p in unsliced_plays(footage_play_dir, gobj, dry_run):
+        pool.spawn_n(slice_play, footage_play_dir, full_footage_file, gobj, p)
+    pool.waitall()
+
+
+def slice_play(footage_play_dir, full_footage_file, gobj, play):
+    """
+    This is just like slice, but it only slices the play provided.
+    In typical cases, slice should be used since it makes sure not
+    to duplicate work.
+
+    This function will not check if the play-by-play directory for
+    gobj has been created.
+    """
+    outdir = _play_path(footage_play_dir, gobj)
+    st = play.start
+    start_time = '%02d:%02d:%02d.%d' % (st.hh, st.mm, st.ss, st.milli)
+    outpath = path.join(outdir, '%s.mp4' % play.idstr())
+
+    cmd = ['ffmpeg',
+           '-ss', start_time,
+           '-i', full_footage_file]
+    if play.duration is not None:
+        cmd += ['-t', '%d' % play.duration]
+    cmd += ['-map', '0',
+            '-strict', '-2',
+            outpath]
+    _run_command(cmd)
 
 
 def download(footage_dir, gobj, quality='1600', dry_run=False):
@@ -89,7 +180,7 @@ def download(footage_dir, gobj, quality='1600', dry_run=False):
 
     The footage will be saved to the following path::
 
-        footage_dir/{eid}-{gamekey}/full.mp4
+        footage_dir/{eid}-{gamekey}.mp4
 
     If footage is already at that path, then a LookupError is raised.
 
@@ -115,9 +206,17 @@ def download(footage_dir, gobj, quality='1600', dry_run=False):
     if dry_run:
         cmd += ['-t', '30']
     cmd += ['-strict', '-2', fp]
+
+    print >> sys.stderr, 'Downloading game %s %s' \
+        % (gobj.eid, _nice_game(gobj))
+    if not _run_command(cmd):
+        print >> sys.stderr, 'FAILED to download game %s' % _nice_game(gobj)
+    else:
+        print >> sys.stderr, 'DONE with game %s' % _nice_game(gobj)
+
+
+def _run_command(cmd):
     try:
-        print >> sys.stderr, 'Downloading game %s %s' \
-            % (gobj.eid, _nice_game(gobj))
         p = subprocess.Popen(cmd,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
@@ -127,17 +226,16 @@ def download(footage_dir, gobj, quality='1600', dry_run=False):
             err = subprocess.CalledProcessError(p.returncode, cmd)
             err.output = output
             raise err
-
-        print >> sys.stderr, 'DONE with game %s' % _nice_game(gobj)
     except subprocess.CalledProcessError, e:
         indent = lambda s: '\n'.join(map(lambda l: '   %s' % l, s.split('\n')))
         print >> sys.stderr, "Could not run '%s' (exit code %d):\n%s" \
             % (' '.join(cmd), e.returncode, indent(e.output))
-        print >> sys.stderr, 'FAILED to download game %s' % _nice_game(gobj)
+        return False
     except OSError, e:
         print >> sys.stderr, "Could not run '%s' (errno: %d): %s" \
             % (' '.join(cmd), e.errno, e.strerror)
-        print >> sys.stderr, 'FAILED to download game %s' % _nice_game(gobj)
+        return False
+    return True
 
 
 def plays(gobj):
@@ -193,6 +291,10 @@ class Play (object):
     """
     def __init__(self, start, duration, playid):
         self.start, self.duration, self.playid = start, duration, playid
+
+    def idstr(self):
+        """Returns a string play id padded with zeroes."""
+        return '%04d' % int(self.playid)
 
     def __str__(self):
         return '(%s, %s, %s)' % (self.playid, self.start, self.duration)
@@ -265,14 +367,14 @@ def _xml_play_data(data):
     rows = []
     for row in bs4.BeautifulSoup(data).find_all('row'):
         playid = row.find('id')
-        if not playid or not row.find('CATIN'):
+        if not playid or not row.find('catin'):
             continue
-        playid = playid.text().strip()
+        playid = playid.get_text().strip()
 
-        start = row.find('ArchiveTCIN')
+        start = row.find('archivetcin')
         if not start:
             continue
-        start = PlayTime(start.text().strip())
+        start = PlayTime(start.get_text().strip())
 
         # If this start doesn't procede the last start time, skip it.
         if len(rows) > 0 and start < rows[-1][1]:
