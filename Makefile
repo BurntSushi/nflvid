@@ -12,7 +12,7 @@ pypi-meta:
 
 pep8:
 	pep8-python2 nflvid/*.py
-	pep8-python2 scripts/{download-all-pbp-xml,nflvid-footage}
+	pep8-python2 scripts/{download-all-pbp-xml,nflvid-footage,nflvid-slice}
 
 push:
 	git push origin master
