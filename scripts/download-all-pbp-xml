@@ -19,8 +19,6 @@ for eid in sorted(nflgame.schedule.games_byid):
         continue
 
     print >> sys.stderr, 'Downloading for %s' % nice
-    ps = nflvid.plays(g) # Saves the XML to disk automatically.
+    ps = nflvid.plays(g)  # Saves the XML to disk automatically.
     if ps is None:
         print >> sys.stderr, 'Could not download XML for game %s' % nice
-
-

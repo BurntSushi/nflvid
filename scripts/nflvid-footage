@@ -6,23 +6,27 @@ import sys
 import eventlet
 import eventlet.green.subprocess
 
-import httplib2
+httplib2 = eventlet.import_patched('httplib2')
 http = httplib2.Http()
 
 import nflgame
 import nflgame.schedule
 import nflvid
 
+
 def eprint(s):
     print >> sys.stderr, s
+
 
 def fatal(s):
     eprint(s)
     sys.exit(1)
 
+
 def is_dead(url):
     resp, _ = http.request(url, 'HEAD')
     return resp['status'] != '200'
+
 
 parser = argparse.ArgumentParser(
     description='Download NFL game footage.')
@@ -74,7 +78,7 @@ for (season, season_type, week, home, away), info in nflgame.schedule.games:
 
     g = nflgame.game.Game(info['eid'])
     if not args.show_url \
-        and nflvid.footage_full(args.footage_dir, g) is not None:
+            and nflvid.footage_full(args.footage_dir, g) is not None:
         continue
 
     matched.append(nflgame.game.Game(info['eid']))
@@ -103,9 +107,7 @@ if not confirm.lower().startswith('y'):
 
 # Okay, we've warned the user enough. Let's start downloading.
 pool = eventlet.greenpool.GreenPool(args.threads)
-
 for g in matched:
     pool.spawn_n(nflvid.download,
                  args.footage_dir, g, args.quality, args.dry_run)
 pool.waitall()
-

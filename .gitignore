@@ -1,2 +1,8 @@
 .*.swp
 *.pyc
+MANIFEST
+build
+dist
+doc
+schedule-ne
+tags

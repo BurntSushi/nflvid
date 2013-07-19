@@ -1,5 +1,18 @@
-from collections import namedtuple
-import glob
+"""
+Introduction
+============
+A simple library to download, slice and search NFL game footage on a
+play-by-play basis.
+
+This library comes with preloaded play-by-play meta data, which describes the
+start time of each play in the game footage. However, the actual footage does
+not come with this library and is not released by me. This package therefore
+provides utilities to batch download NFL Game Footage from the original source.
+
+Once game footage is downloaded, you can use this library to search plays and
+construct a playlist to play in any video player.
+"""
+
 import gzip
 import os
 import os.path as path
@@ -9,17 +22,19 @@ import urllib2
 
 import bs4
 
+import eventlet
+httplib2 = eventlet.import_patched('httplib2')
 import eventlet.green.subprocess as subprocess
 
 from nflgame import OrderedDict
-import nflgame.game
 
 _xmlf = path.join(path.split(__file__)[0], 'pbp-xml', '%s-%s.xml.gz')
 _xml_base_url = 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml'
 
-_footage_url = 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/%s/%s/%s/%s/2_%s_%s_%s_%s_h_whole_1_%s.mp4.m3u8'
+_footage_url = 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
+               '%s/%s/%s/%s/2_%s_%s_%s_%s_h_whole_1_%s.mp4.m3u8'
 
-__play_cache = { } # game eid -> play id -> Play
+__play_cache = {}  # game eid -> play id -> Play
 
 
 def footage_url(gobj, quality='1600'):
@@ -76,20 +91,31 @@ def download(footage_dir, gobj, quality='1600', dry_run=False):
     game with the quality provided. The qualities available are:
     400, 800, 1200, 1600, 2400, 3000, 4500 with 4500 being the best.
 
-    The footage will be saved to the following path:
+    The footage will be saved to the following path::
 
         footage_dir/{eid}-{gamekey}/full.mp4
 
     If footage is already at that path, then a LookupError is raised.
-    
+
     A full game's worth of footage at a quality of 1600 is about 2GB.
     """
     fp = _full_path(footage_dir, gobj)
     if os.access(fp, os.R_OK):
         raise LookupError('Footage path "%s" already exists.' % fp)
-    os.makedirs(_game_path(footage_dir, gobj))
 
     url = footage_url(gobj, quality)
+
+    # Let's check to see if the URL exists. We could let ffmpeg catch
+    # the error, but since this is a common error, let's show something
+    # nicer than a bunch of ffmpeg vomit.
+    resp, _ = httplib2.Http().request(url, 'HEAD')
+    if resp['status'] != '200':
+        print >> sys.stderr, 'BAD URL (http status %s) for game %s: %s' \
+            % (resp['status'], _nice_game(gobj), url)
+        print >> sys.stderr, 'FAILED to download game %s' % _nice_game(gobj)
+        return
+
+    os.makedirs(_game_path(footage_dir, gobj))
     cmd = ['ffmpeg', '-i', url]
     if dry_run:
         cmd += ['-t', '30']
@@ -109,7 +135,7 @@ def download(footage_dir, gobj, quality='1600', dry_run=False):
 
         print >> sys.stderr, 'DONE with game %s' % _nice_game(gobj)
     except subprocess.CalledProcessError, e:
-        indent = lambda s: '\n'.join(map(lambda l: '    %s' % l, s.split('\n')))
+        indent = lambda s: '\n'.join(map(lambda l: '   %s' % l, s.split('\n')))
         print >> sys.stderr, "Could not run '%s' (exit code %d):\n%s" \
             % (' '.join(cmd), e.returncode, indent(e.output))
         print >> sys.stderr, 'FAILED to download game %s' % _nice_game(gobj)
@@ -131,7 +157,7 @@ def plays(gobj):
     """
     if gobj.game_over() and gobj.eid in __play_cache:
         return __play_cache[gobj.eid]
-    
+
     rawxml = _get_xml_data((gobj.eid, gobj.gamekey))
     ps = _xml_play_data(rawxml)
     if ps is None:
@@ -162,10 +188,11 @@ def play(gobj, playid):
 class Play (object):
     """
     Represents a single play with meta data that ties it to game footage.
-    The footage_start corresponds to the 'ArchiveTCIN', which is when the
-    play starts. Since there is no record of when a play stops, the duration is
-    computed by subtracting the start time from the start time of the next play.
-    If it's the last play recorded, then the duration is None.
+    The footage_start corresponds to the 'ArchiveTCIN', which is when
+    the play starts. Since there is no record of when a play stops, the
+    duration is computed by subtracting the start time from the start
+    time of the next play. If it's the last play recorded, then the
+    duration is None.
 
     The play id is the foreign key that maps to play data stored in nflgame.
     """
@@ -220,7 +247,7 @@ class PlayTime (object):
     def __sub__(self, other):
         """
         Returns the difference rounded to nearest second between
-        two time points.  The 'other' time point must take place before the 
+        two time points.  The 'other' time point must take place before the
         current time point.
         """
         assert other <= self, '%s is not <= than %s' % (other, self)
@@ -292,7 +319,7 @@ def _get_xml_data(game=None, fpath=None):
         month = int(game[0][4:6])
         if month <= 3:
             year -= 1
-        u = _xml_base_url % (year, game[1]) # The year and the game key.
+        u = _xml_base_url % (year, game[1])  # The year and the game key.
         return urllib2.urlopen(u, timeout=10).read()
     except urllib2.HTTPError, e:
         print >> sys.stderr, e
