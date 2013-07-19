@@ -58,11 +58,7 @@ def footage_full(footage_dir, gobj):
 
 
 def _full_path(footage_dir, g):
-    return path.join(_game_path(footage_dir, g), 'full.mp4')
-
-
-def _game_path(footage_dir, g):
-    return path.join(footage_dir, '%s-%s' % (g.eid, g.gamekey))
+    return path.join(footage_dir, '%s-%s.mp4' % (g.eid, g.gamekey))
 
 
 def _nice_game(gobj):
@@ -78,7 +74,7 @@ def footage_plays(footage_dir, gobj):
     If no footage breakdown exists for the game provided, then an empty list
     is returned.
     """
-    fp = path.join(_game_path(footage_dir, gobj))
+    fp = path.join(footage_dir, '%s-%s' % (gobj.eid, gobj.gamekey))
     if not os.access(fp, os.R_OK):
         return []
     entries = filter(lambda f: f != 'full.mp4', os.listdir(fp))
@@ -115,7 +111,6 @@ def download(footage_dir, gobj, quality='1600', dry_run=False):
         print >> sys.stderr, 'FAILED to download game %s' % _nice_game(gobj)
         return
 
-    os.makedirs(_game_path(footage_dir, gobj))
     cmd = ['ffmpeg', '-i', url]
     if dry_run:
         cmd += ['-t', '30']

@@ -33,8 +33,8 @@ parser = argparse.ArgumentParser(
 aa = parser.add_argument
 aa('footage_dir', type=str,
    help='The directory containing your footage data. All footage will be '
-        'saved in a special directory hierarchy in this path.')
-aa('--threads', default=2, type=int,
+        'saved as "{footage_dir}/{eid}-{gamekey}.mp4".')
+aa('--threads', default=4, type=int,
    help='The number of concurrent ffmpeg instances to run.')
 aa('--season', default=2012, type=int, choices=[2011, 2012, 2013],
    help='The season to download video from.')
