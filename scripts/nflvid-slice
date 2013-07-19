@@ -1,0 +1,85 @@
+#!/usr/bin/env python2
+
+import argparse
+import multiprocessing
+import os
+import sys
+
+import nflgame
+import nflgame.game
+import nflgame.schedule
+import nflvid
+
+
+def eprint(s):
+    print >> sys.stderr, s
+
+
+def fatal(s):
+    eprint(s)
+    sys.exit(1)
+
+
+# Heuristically pick a good default value for threads.
+try:
+    threads = multiprocessing.cpu_count()
+except NotImplementedError:
+    threads = 2
+
+
+parser = argparse.ArgumentParser(
+    description='Slice NFL game footage into play-by-play videos.',
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+aa = parser.add_argument
+aa('footage_play_dir', type=str,
+   help='The play footage directory to store chopped play-by-play video. '
+        'Play by play videos will be named '
+        '"{footage_play_dir}/{eid}-{gamkey}/{playid}.mp4".')
+aa('game_files', type=str, nargs='+',
+   help='A list of full game footage files downloaded with nflvid-footage. '
+        'Each file must start with the game\'s eid so that its meta data '
+        'can be accessed. Files provided here will not be modified.')
+aa('--threads', default=threads, type=int,
+   help='The number of concurrent ffmpeg instances to run.')
+aa('--dry-run', action='store_true',
+   help='When set, only the first 10 plays of each game will be sliced. '
+        'This is useful to test your setup and make sure things are working '
+        'before committing to a long job.')
+aa('--show-unsliced', action='store_true',
+   help='When set, the plays that have not been sliced yet for each game '
+        'will be printed to stdout, and the program will quit without '
+        'doing anything else.')
+args = parser.parse_args()
+
+if args.threads < 1:
+    fatal('Threads must be at least 1.')
+
+# Get the corresponding game objects for each game file given.
+games = []
+footage_files = {}  # eid -> game_files
+for gamef in args.game_files:
+    gameb = os.path.basename(gamef)
+    eid = gameb[0:10]
+    if eid not in nflgame.schedule.games_byid:
+        fatal('EID "%s" from game file "%s" is not valid.\n'
+              'Please make sure all game files start with their EID.'
+              % (eid, gameb))
+
+    games.append(nflgame.game.Game(eid))
+    footage_files[eid] = gamef
+
+if args.show_unsliced:
+    for g in games:
+        unsliced = nflvid.unsliced_plays(args.footage_play_dir,
+                                         g, args.dry_run)
+        if len(unsliced) == 0:
+            continue
+
+        print 'Unsliced plays for game %s %s' % (g.eid, nflvid._nice_game(g))
+        for p in unsliced:
+            print '    %s' % p
+    sys.exit(0)
+
+for g in games:
+    nflvid.slice(args.footage_play_dir, footage_files[g.eid], g,
+                 args.threads, args.dry_run)
