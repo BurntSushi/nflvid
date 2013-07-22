@@ -2,6 +2,7 @@
 
 import argparse
 import multiprocessing
+import os.path
 import sys
 
 import eventlet
@@ -66,6 +67,9 @@ aa('--show-url', action='store_true',
 aa('--show-dead', action='store_true',
    help='Checks whether a URL is valid or not using a HEAD request. '
         'Only applicable when --show-url is used.')
+aa('--progress', action='store_true',
+   help='When set, this program will output all matching games and report '
+        'whether there is footage for them.')
 args = parser.parse_args()
 
 if args.threads < 1:
@@ -86,7 +90,7 @@ for (season, season_type, week, home, away), info in nflgame.schedule.games:
         continue
 
     g = nflgame.game.Game(info['eid'])
-    if not args.show_url \
+    if not args.show_url and not args.progress \
             and nflvid.footage_full(args.footage_dir, g) is not None:
         continue
 
@@ -94,6 +98,14 @@ for (season, season_type, week, home, away), info in nflgame.schedule.games:
 
 if len(matched) == 0:
     fatal('No games matched your search criteria.')
+if args.progress:
+    for g in sorted(matched, key=lambda g: int(g.eid)):
+        status = nflvid.footage_full(args.footage_dir, g)
+        status = os.path.basename(status) if status is not None else 'NONE'
+
+        print 'Season %d, Week %02d, %03s at %03s (%s)' \
+            % (g.season(), g.schedule['week'], g.away, g.home, status)
+    sys.exit(0)
 if args.show_url:
     for g in matched:
         url = nflvid.footage_url(g, args.quality)
