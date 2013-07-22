@@ -153,7 +153,6 @@ def slice(footage_play_dir, full_footage_file, gobj, threads=4, dry_run=False):
 
 def slice_play(footage_play_dir, full_footage_file, gobj, play,
                max_duration=15):
-def slice_play(footage_play_dir, full_footage_file, gobj, play):
     """
     This is just like slice, but it only slices the play provided.
     In typical cases, slice should be used since it makes sure not
@@ -389,7 +388,7 @@ def _xml_play_data(data):
     rows = []
     for row in bs4.BeautifulSoup(data).find_all('row'):
         playid = row.find('id')
-        if not playid or not row.find('catin'):
+        if not playid:
             continue
         playid = playid.get_text().strip()
 
@@ -401,10 +400,28 @@ def _xml_play_data(data):
         # If this start doesn't procede the last start time, skip it.
         if len(rows) > 0 and start < rows[-1][1]:
             continue
-        rows.append((playid, start))
+        rows.append((playid, start, row))
+
+    # A predicate for determining whether to ignore a row or not in our final
+    # result set. For example, timeouts take a lot of time but aren't needed
+    # for play-by-play footage.
+    def ignore(row):
+        if 'playdescription' in row.attrs:
+            if row['playdescription'].lower().startswith('timeout'):
+                return True
+            if row['playdescription'].lower().startswith('two-minute'):
+                return True
+
+        # Did we miss anything?
+        if 'preplaybyplay' in row.attrs:
+            if row['preplaybyplay'].lower().startswith('timeout'):
+                return True
+        return False
 
     d = OrderedDict()
-    for i, (playid, start) in enumerate(rows):
+    for i, (playid, start, row) in enumerate(rows):
+        if ignore(row):
+            continue
         duration = None
         if i < len(rows) - 1:
             duration = rows[i+1][1] - start
