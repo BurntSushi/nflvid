@@ -72,6 +72,10 @@ if args.show_unsliced:
     for g in games:
         unsliced = nflvid.unsliced_plays(args.footage_play_dir,
                                          g, args.dry_run)
+        if unsliced is None:
+            print 'All plays are unsliced for game %s %s' \
+                % (g.eid, nflvid._nice_game(g))
+            continue
         if len(unsliced) == 0:
             continue
 

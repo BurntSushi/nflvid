@@ -98,6 +98,8 @@ def unsliced_plays(footage_play_dir, gobj, dry_run=False):
     returned in the list.
 
     If the list is empty, then all plays for the game have been sliced.
+    Alternatively, None can be returned if there was a problem retrieving
+    the play-by-play meta data.
 
     If dry_run is true, then only the first 10 plays of the game are
     sliced.
@@ -106,6 +108,8 @@ def unsliced_plays(footage_play_dir, gobj, dry_run=False):
     outdir = _play_path(footage_play_dir, gobj)
 
     unsliced = []
+    if ps is None:
+        return None
     for i, p in enumerate(ps.values()):
         if dry_run and i >= 10:
             break
@@ -142,7 +146,7 @@ def slice(footage_play_dir, full_footage_file, gobj, threads=4, dry_run=False):
         os.makedirs(outdir)
 
     pool = eventlet.greenpool.GreenPool(threads)
-    for p in unsliced_plays(footage_play_dir, gobj, dry_run):
+    for p in unsliced_plays(footage_play_dir, gobj, dry_run) or []:
         pool.spawn_n(slice_play, footage_play_dir, full_footage_file, gobj, p)
     pool.waitall()
 
@@ -254,6 +258,10 @@ def plays(gobj):
     rawxml = _get_xml_data((gobj.eid, gobj.gamekey))
     ps = _xml_play_data(rawxml)
     if ps is None:
+        return None
+    if len(ps) == 0:
+        print >> sys.stderr, 'Could not find ArchiveTCIN field in XML data. ' \
+                             'This field provides the start time of each play.'
         return None
     __play_cache[gobj.eid] = ps
 
