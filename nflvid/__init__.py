@@ -151,6 +151,8 @@ def slice(footage_play_dir, full_footage_file, gobj, threads=4, dry_run=False):
     pool.waitall()
 
 
+def slice_play(footage_play_dir, full_footage_file, gobj, play,
+               max_duration=15):
 def slice_play(footage_play_dir, full_footage_file, gobj, play):
     """
     This is just like slice, but it only slices the play provided.
@@ -159,20 +161,30 @@ def slice_play(footage_play_dir, full_footage_file, gobj, play):
 
     This function will not check if the play-by-play directory for
     gobj has been created.
+
+    max_duration is used to cap the length of a play. This drastically
+    cuts down on the time required to slice a game and the storage
+    requirements of a game at the cost of potentially missing bigger
+    plays. This may get smarter in the future. Set max_duration to 0
+    to impose no artificial cap.
     """
     outdir = _play_path(footage_play_dir, gobj)
     st = play.start
     start_time = '%02d:%02d:%02d.%d' % (st.hh, st.mm, st.ss, st.milli)
     outpath = path.join(outdir, '%s.mp4' % play.idstr())
 
+    duration = max_duration
+    if duration == 0 or play.duration < max_duration:
+        duration = play.duration or 40  # Probably the last play of the game.
+
     cmd = ['ffmpeg',
            '-ss', start_time,
-           '-i', full_footage_file]
-    if play.duration is not None:
-        cmd += ['-t', '%d' % play.duration]
-    cmd += ['-map', '0',
-            '-strict', '-2',
-            outpath]
+           '-i', full_footage_file,
+           '-t', '%d' % duration,
+           '-map', '0',
+           '-strict', '-2',
+           outpath,
+          ]
     _run_command(cmd)
 
 
