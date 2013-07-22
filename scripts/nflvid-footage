@@ -70,6 +70,9 @@ aa('--show-dead', action='store_true',
 aa('--progress', action='store_true',
    help='When set, this program will output all matching games and report '
         'whether there is footage for them.')
+aa('--files', action='store_true',
+   help='When set, this program will output all matching files in the '
+        'given directory, one per line.')
 args = parser.parse_args()
 
 if args.threads < 1:
@@ -90,7 +93,7 @@ for (season, season_type, week, home, away), info in nflgame.schedule.games:
         continue
 
     g = nflgame.game.Game(info['eid'])
-    if not args.show_url and not args.progress \
+    if not args.show_url and not args.progress and not args.files \
             and nflvid.footage_full(args.footage_dir, g) is not None:
         continue
 
@@ -98,6 +101,12 @@ for (season, season_type, week, home, away), info in nflgame.schedule.games:
 
 if len(matched) == 0:
     fatal('No games matched your search criteria.')
+if args.files:
+    for g in sorted(matched, key=lambda g: int(g.eid)):
+        p = nflvid.footage_full(args.footage_dir, g)
+        if p is not None:
+            print p
+    sys.exit(0)
 if args.progress:
     for g in sorted(matched, key=lambda g: int(g.eid)):
         status = nflvid.footage_full(args.footage_dir, g)
