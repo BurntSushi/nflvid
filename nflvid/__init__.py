@@ -145,8 +145,17 @@ def slice(footage_play_dir, full_footage_file, gobj, threads=4, dry_run=False):
     if not os.access(outdir, os.R_OK):
         os.makedirs(outdir)
 
+    unsliced = unsliced_plays(footage_play_dir, gobj, dry_run)
+    if unsliced is None or len(unsliced) == 0:
+        print >> sys.stderr, \
+            'There are no unsliced plays remaining for game %s %s.\n' \
+            'If they have not been sliced yet, then the XML play-by-play ' \
+            'meta data may not be available or is corrupt.' \
+            % (gobj, _nice_game(gobj))
+        return
+
     pool = eventlet.greenpool.GreenPool(threads)
-    for p in unsliced_plays(footage_play_dir, gobj, dry_run) or []:
+    for p in unsliced:
         pool.spawn_n(slice_play, footage_play_dir, full_footage_file, gobj, p)
     pool.waitall()
 
