@@ -218,7 +218,9 @@ def download(footage_dir, gobj, quality='1600', dry_run=False):
         print >> sys.stderr, 'FAILED to download game %s' % _nice_game(gobj)
         return
 
-    cmd = ['ffmpeg', '-i', url]
+    cmd = ['ffmpeg',
+           '-timeout', '60',
+           '-i', url]
     if dry_run:
         cmd += ['-t', '30']
     cmd += ['-strict', '-2', fp]
