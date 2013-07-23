@@ -62,3 +62,20 @@ Thus, play data in `nflgame` can now be trivially mapped to video of that play.
 Here's an example of slicing out a single play from a game:
 
   ffmpeg -ss 00:14:28.26 -i nyj_ne_2012_55604_1600.mp4 -t 72 -map 0 -strict -2 test.mp4
+
+
+Coache's film
+=============
+It's an rtmp stream at the following URL:
+
+    rtmp://neulionms.fcod.llnwd.net/a5306/e1/mp4:u/nfl/nfl/coachtapes/{SEASON}/{GAMEKEY}_all_1600
+
+Where SEASON is the 4 digit year of the season and GAMEKEY is the game key
+as discussed above, e.g., 55577.
+
+To download an rtmp stream, use the `rtmpdump` command:
+
+    rtmpdump -r '{URL}' > whatever.mp4
+
+It should then be playable in any capable video player.
+
