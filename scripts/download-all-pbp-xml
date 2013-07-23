@@ -12,7 +12,10 @@ for eid in sorted(nflgame.schedule.games_byid):
     g = nflgame.game.Game(info['eid'])
     nice = '(%s, %s)' % (g.eid, g.gamekey)
 
-    if g.season() <= 2010:
+    if g.schedule['season_type'] != 'REG':
+        # Only regular season for now.
+        continue
+    if g.season() <= 2009:
         # 2010 and earlier has really spotty coverage at this URL.
         continue
     if os.access('nflvid/pbp-xml/%s-%s.xml.gz' % (g.eid, g.gamekey), os.R_OK):
