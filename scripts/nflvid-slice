@@ -5,6 +5,8 @@ import multiprocessing
 import os
 import sys
 
+import eventlet
+
 import nflgame
 import nflgame.game
 import nflgame.schedule
@@ -120,9 +122,13 @@ if args.add_missing_plays:
                 % (g.eid, nflvid._nice_game(g))
             continue
 
+        pool = eventlet.greenpool.GreenPool(args.threads)
         for p in unsliced:
-            nflvid.artificial_slice(args.footage_play_dir, g, p)
-        eprint('DONE artificially slicing game %s' % nflvid._nice_game(g))
+            pool.spawn_n(nflvid.artificial_slice, args.footage_play_dir, g, p)
+        pool.waitall()
+
+        eprint('DONE artificially slicing game %s %s'
+               % (g.eid, nflvid._nice_game(g)))
     sys.exit(0)
 
 for g in games:
