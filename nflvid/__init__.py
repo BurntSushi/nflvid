@@ -257,10 +257,10 @@ def slice_play(footage_play_dir, full_footage_file, gobj, play,
     duration = '%02d:%02d:%02d.%d' % (dr.hh, dr.mm, dr.ss, dr.milli)
     cmd = ['ffmpeg',
            '-ss', start_time,
-           '-i', full_footage_file,
            '-t', duration,
-           '-map', '0',
-           '-strict', '-2',
+           '-i', full_footage_file,
+           '-acodec', 'copy',
+           '-vcodec', 'copy',
            outpath,
            ]
     _run_command(cmd)
