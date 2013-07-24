@@ -19,6 +19,7 @@ import os
 import os.path as path
 import socket
 import sys
+import tempfile
 import urllib2
 
 import bs4
@@ -217,6 +218,47 @@ def slice(footage_play_dir, full_footage_file, gobj, coach=True,
 
     _eprint('DONE slicing game %s' % _nice_game(gobj))
 
+
+def artificial_slice(footage_play_dir, gobj, gobj_play):
+    """
+    Creates a video file that contains a single static image with a
+    textual description of the play. The purpose is to provide some
+    representation of a play even if its video form doesn't exist.
+    (Or more likely, the play-by-play meta data for that play is
+    corrupt.)
+
+    This function requires the use of ImageMagick's convert with
+    pango support.
+
+    Note that gobj_play is an nflgame.game.Play object and not an
+    nflvid.Play object.
+    """
+    outdir = _play_path(footage_play_dir, gobj)
+    outpath = path.join(outdir, '%04d.mp4' % int(gobj_play.playid))
+
+    # def _quote(s): 
+        # return "'" + s.replace("'", "'\\''") + "'" 
+    pango = '<span size="20000" foreground="white">'
+    with tempfile.NamedTemporaryFile(mode='w+', suffix='.png') as tmp:
+        cmd = ['convert',
+               '-size', '640x480',  # size of coach footage. configurable?
+               '-background', 'black',
+               'pango:%s%s</span>' % (pango, gobj_play),
+               tmp.name,
+               ]
+        _run_command(cmd)
+
+        cmd = ['ffmpeg',
+               '-f', 'image2',
+               '-loop', '1',
+               '-r:v', '7',
+               '-i', tmp.name,
+               '-pix_fmt', 'yuv420p',
+               '-an',
+               '-t', '10',
+               outpath,
+               ]
+        _run_command(cmd)
 
 def slice_play(footage_play_dir, full_footage_file, gobj, play,
                max_duration=0, cut_scoreboard=True):

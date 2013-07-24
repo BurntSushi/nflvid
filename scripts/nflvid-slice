@@ -54,6 +54,9 @@ aa('--missing-plays', action='store_true',
         'play slice in the given play footage directory. The difference '
         'between this and --show-unsliced is that this uses plays from '
         'GameCenter data as opposed to the play start time meta data.')
+aa('--add-missing-plays', action='store_true',
+   help='Artifically creates play videos with static text that describes '
+        'the play for every play that shows up with --missing-plays.')
 aa('--broadcast', action='store_true',
    help='When set, broadcast plays will be sliced. This should only be used '
         'with files containing broadcast footage. This is EXPERIMENTAL.')
@@ -105,6 +108,21 @@ if args.missing_plays:
         print 'Unsliced plays for game %s %s' % (g.eid, nflvid._nice_game(g))
         for p in unsliced:
             print '    %04s  %s' % (p.playid, p)
+    sys.exit(0)
+if args.add_missing_plays:
+    for g in games:
+        unsliced = []
+        for p in g.drives.plays():
+            if nflvid.footage_play(args.footage_play_dir, g, p.playid) is None:
+                unsliced.append(p)
+        if len(unsliced) == 0:
+            print 'All plays on record are sliced for game %s %s' \
+                % (g.eid, nflvid._nice_game(g))
+            continue
+
+        for p in unsliced:
+            nflvid.artificial_slice(args.footage_play_dir, g, p)
+        eprint('DONE artificially slicing game %s' % nflvid._nice_game(g))
     sys.exit(0)
 
 for g in games:
