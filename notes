@@ -79,3 +79,21 @@ To download an rtmp stream, use the `rtmpdump` command:
 
 It should then be playable in any capable video player.
 
+Various commands
+================
+To probe a video file and get info such as duration and frame size:
+
+    ffprobe -show_streams -show_format -of json \
+            ./full/2012090904-55513.mp4 2>/dev/null
+
+To write text on an image. (May not fit, though...)
+
+    convert -size 640x480 -background SteelBlue1 -fill black -font Helvetica
+            -pointsize 72 -gravity center
+            label:"Wat wat in the butt" titlecard.jpg
+
+To convert an image to an mp4 video that is 2 seconds long:
+
+    ffmpeg -f image2 -loop 1 -r:v 7 -i titlecard.jpg -pix_fmt yuv420p
+           -an -t 2 titlecard.mp4
+
