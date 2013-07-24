@@ -301,7 +301,11 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
            '-i', url]
     if dry_run:
         cmd += ['-t', '30']
-    cmd += ['-strict', '-2', fp]
+    cmd += ['-absf', 'aac_adtstoasc',  # no idea. ffmpeg says I need it though.
+            '-acodec', 'copy',
+            '-vcodec', 'copy',
+            fp,
+            ]
 
     _eprint('Downloading game %s %s' % (gobj.eid, _nice_game(gobj)))
     if not _run_command(cmd):
