@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 
 import argparse
-import multiprocessing
 import os.path
 import sys
 
@@ -30,13 +29,6 @@ def is_dead(url):
     return resp['status'] != '200'
 
 
-# Heuristically pick a good default value for threads.
-try:
-    threads = 2 * multiprocessing.cpu_count()
-except NotImplementedError:
-    threads = 4
-
-
 parser = argparse.ArgumentParser(
     description='Download NFL game footage.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -44,8 +36,10 @@ aa = parser.add_argument
 aa('footage_dir', type=str,
    help='The directory containing your footage data. All footage will be '
         'saved as "{footage_dir}/{eid}-{gamekey}.mp4".')
-aa('--threads', default=threads, type=int,
-   help='The number of concurrent ffmpeg instances to run.')
+aa('--threads', default=2, type=int,
+   help='The number of concurrent ffmpeg/rtmpdump instances to run.'
+        'When using --broadcast, try setting this to twice the number '
+        'of logical CPUs in your machine.')
 aa('--season', default=2012, type=int, choices=[2011, 2012, 2013],
    help='The season to download video from.')
 aa('--weeks', default=None, type=int, nargs='+',
@@ -54,27 +48,37 @@ aa('--teams', default=None, type=str, nargs='+',
    help='The teams to download video of.')
 aa('--season-type', default='REG', choices=['PRE', 'REG', 'POST'],
    help='The part of the season to search.')
-aa('--quality', default='1600',
-   choices=['400', '800', '1200', '1600', '2400', '3000', '4500'],
-   help='The video/audio quality to use. 4500 is the best.')
 aa('--dry-run', action='store_true',
    help='When set, only the first 30 seconds of each game will be downloaded. '
         'This is useful to test your setup and make sure things are working '
         'before committing to a long job.')
-aa('--show-url', action='store_true',
-   help='When set, the m3u8 HLS urls will be printed to stdout and the '
-        'program will quit without doing anything else.')
-aa('--show-dead', action='store_true',
-   help='Checks whether a URL is valid or not using a HEAD request. '
-        'Only applicable when --show-url is used.')
 aa('--progress', action='store_true',
    help='When set, this program will output all matching games and report '
         'whether there is footage for them.')
 aa('--files', action='store_true',
    help='When set, this program will output all matching files in the '
         'given directory, one per line.')
+aa('--broadcast', action='store_true',
+   help='When set, broadcast footage will be downloaded in lieu of coach '
+        'footage. This is EXPERIMENTAL.')
+aa('--quality', default='1600',
+   choices=['400', '800', '1200', '1600', '2400', '3000', '4500'],
+   help='The video/audio quality to use for broadcast footage. '
+        '4500 is the best. Coach video always has quality 1600.')
+aa('--show-url', action='store_true',
+   help='When set, the m3u8 HLS urls will be printed to stdout and the '
+        'program will quit without doing anything else.'
+        'This implies --broadcast.')
+aa('--show-dead', action='store_true',
+   help='Checks whether a URL is valid or not using a HEAD request. '
+        'Only applicable when --show-url is used.'
+        'This implies --broadcast.')
+aa('--no-confirm', action='store_true',
+   help='When set, confirmation will be skipped.')
 args = parser.parse_args()
 
+if args.show_url:
+    args.broadcast = True
 if args.threads < 1:
     fatal('Threads must be at least 1.')
 if args.teams is not None:
@@ -117,7 +121,7 @@ if args.progress:
     sys.exit(0)
 if args.show_url:
     for g in matched:
-        url = nflvid.footage_url(g, args.quality)
+        url = nflvid.broadcast_url(g, args.quality)
         print nflvid._nice_game(g)
         print url
         if args.show_dead:
@@ -129,15 +133,23 @@ if args.show_url:
     sys.exit(0)
 
 eprint("These are the games that match your search criteria:")
+confmesg = "Are you sure you want to start downloading? [y/n] "
 for g in matched:
     eprint(nflvid._nice_game(g))
-confirm = raw_input("Are you sure you want to start downloading? [y/n] ")
-if not confirm.lower().startswith('y'):
-    sys.exit(1)
+if args.no_confirm:
+    eprint(confmesg + 'y')
+else:
+    confirm = raw_input(confmesg)
+    if not confirm.lower().startswith('y'):
+        sys.exit(1)
 
 # Okay, we've warned the user enough. Let's start downloading.
 pool = eventlet.greenpool.GreenPool(args.threads)
 for g in matched:
-    pool.spawn_n(nflvid.download,
-                 args.footage_dir, g, args.quality, args.dry_run)
+    if args.broadcast:
+        pool.spawn_n(nflvid.download_broadcast,
+                     args.footage_dir, g, args.quality, args.dry_run)
+    else:
+        pool.spawn_n(nflvid.download_coach,
+                     args.footage_dir, g, args.dry_run)
 pool.waitall()

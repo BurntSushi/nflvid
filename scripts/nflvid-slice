@@ -49,6 +49,14 @@ aa('--show-unsliced', action='store_true',
    help='When set, the plays that have not been sliced yet for each game '
         'will be printed to stdout, and the program will quit without '
         'doing anything else.')
+aa('--missing-plays', action='store_true',
+   help='Outputs all plays on record for the game that do not have a '
+        'play slice in the given play footage directory. The difference '
+        'between this and --show-unsliced is that this uses plays from '
+        'GameCenter data as opposed to the play start time meta data.')
+aa('--broadcast', action='store_true',
+   help='When set, broadcast plays will be sliced. This should only be used '
+        'with files containing broadcast footage. This is EXPERIMENTAL.')
 args = parser.parse_args()
 
 if args.threads < 1:
@@ -71,7 +79,7 @@ for gamef in args.game_files:
 if args.show_unsliced:
     for g in games:
         unsliced = nflvid.unsliced_plays(args.footage_play_dir,
-                                         g, args.dry_run)
+                                         g, not args.broadcast, args.dry_run)
         if unsliced is None:
             print 'All plays are unsliced for game %s %s' \
                 % (g.eid, nflvid._nice_game(g))
@@ -83,7 +91,22 @@ if args.show_unsliced:
         for p in unsliced:
             print '    %s' % p
     sys.exit(0)
+if args.missing_plays:
+    for g in games:
+        unsliced = []
+        for p in g.drives.plays():
+            if nflvid.footage_play(args.footage_play_dir, g, p.playid) is None:
+                unsliced.append(p)
+        if len(unsliced) == 0:
+            print 'All plays on record are sliced for game %s %s' \
+                % (g.eid, nflvid._nice_game(g))
+            continue
+
+        print 'Unsliced plays for game %s %s' % (g.eid, nflvid._nice_game(g))
+        for p in unsliced:
+            print '    %04s  %s' % (p.playid, p)
+    sys.exit(0)
 
 for g in games:
     nflvid.slice(args.footage_play_dir, footage_files[g.eid], g,
-                 args.threads, args.dry_run)
+                 not args.broadcast, args.threads, args.dry_run)
