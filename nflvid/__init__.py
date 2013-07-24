@@ -203,11 +203,14 @@ def slice(footage_play_dir, full_footage_file, gobj, coach=True,
 
     unsliced = unsliced_plays(footage_play_dir, gobj, coach, dry_run)
     if unsliced is None or len(unsliced) == 0:
-        _eprint(
-            'There are no unsliced plays remaining for game %s %s.\n'
-            'If they have not been sliced yet, then the XML play-by-play '
-            'meta data may not be available or is corrupt.'
-            % (gobj, _nice_game(gobj)))
+        # Only show an annoying error message if there are no sliced
+        # plays on disk.
+        if not footage_plays(footage_play_dir, gobj):
+            _eprint(
+                'There are no unsliced plays remaining for game %s %s.\n'
+                'If they have not been sliced yet, then the XML play-by-play '
+                'meta data may not be available or is corrupt.'
+                % (gobj, _nice_game(gobj)))
         return
 
     pool = eventlet.greenpool.GreenPool(threads)
