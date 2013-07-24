@@ -406,8 +406,8 @@ def plays(gobj, coach=True):
     __broadcast_cache[gobj.eid] = ps
 
     # Save the XML data to disk if the game is over.
-    if gobj.game_over():
-        fp = _xmlf % (gobj.eid, gobj.gamekey)
+    fp = _xmlf % (gobj.eid, gobj.gamekey)
+    if gobj.game_over() and not os.access(fp, os.R_OK):
         try:
             print >> gzip.open(fp, 'w+'), rawxml,
         except IOError:
