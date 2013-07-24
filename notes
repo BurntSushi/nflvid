@@ -97,3 +97,7 @@ To convert an image to an mp4 video that is 2 seconds long:
     ffmpeg -f image2 -loop 1 -r:v 7 -i titlecard.jpg -pix_fmt yuv420p
            -an -t 2 titlecard.mp4
 
+To add subtitles:
+
+    ffmpeg -i 3400.mp4 -i test.srt -scodec mov_text 3400-sub.mp4
+
