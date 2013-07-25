@@ -394,7 +394,7 @@ def download_coach(footage_dir, gobj, dry_run=False):
         _eprint('DONE (incomplete) with game %s %s'
                 % (gobj.eid, _nice_game(gobj)))
     elif not status:
-        _eprint('FAILED to download game %s' % _nice_game(gobj))
+        _eprint('FAILED to download game %s %s' % (gobj.eid, _nice_game(gobj)))
     else:
         _eprint('DONE with game %s %s' % (gobj.eid, _nice_game(gobj)))
 
