@@ -1,4 +1,4 @@
-nflvid is a Python package that facilates the processing of NFL game footage. 
+`nflvid` is a Python package that facilates the processing of NFL game footage. 
 In particular, this library provides routines to do the following:
 
   - Download game footage from NFL's content provider (Neulion).
@@ -19,7 +19,7 @@ package's future remains uncertain.
 
 Slicing game footage into play-by-play pieces is done using meta data, which 
 can sometimes contain errors. Not all of them are detectable, but when they 
-are, nflvid can create a ten-second "stand in" video clip with a textual 
+are, `nflvid` can create a ten-second "stand in" video clip with a textual 
 description of the play.
 
 The meta data for when each play starts in the footage is included in this 
@@ -28,7 +28,7 @@ repository and is installed automatically.
 The actual game footage can either be broadcast footage (with commercials 
 removed), or it can be "all-22" (coach) footage. Broadcast footage comes in 
 varying qualities (up to 720p HD) while "all-22" footage is limited to only 
-standard definition (480p) quality. nflvid faciliates acquiring either, but 
+standard definition (480p) quality. `nflvid` faciliates acquiring either, but 
 getting coach footage is much more reliable and is therefore the default 
 operation. Gathering broadcast footage is possible, but it is buggy.
 
@@ -50,8 +50,8 @@ installed with `pip`:
 ## Dependencies
 
 `nflvid` depends on the following third-party Python packages, which are all 
-available in `PyPI` and are installed automatically by `pip` if the above 
-method is used.
+available in `PyPI` and are installed automatically by `pip` if it's used to 
+install `nflvid`.
 
 * [nflgame](https://pypi.python.org/pypi/nflgame)
 * [httplib2](https://pypi.python.org/pypi/httplib2)
@@ -60,7 +60,9 @@ method is used.
 
 Additionally, the following programs are used to facilitate the downloading and 
 slicing of video. They should be available in the standard repositories of any 
-Linux distribution:
+Linux distribution. They are not required if you already have the sliced 
+play-by-play footage and only want to access video of a particular play given a 
+play identifier from `nflgame`.
 
 * [ffmpeg](http://www.ffmpeg.org)
 * [imagemagick](http://www.imagemagick.org/) (specifically, the `convert` 
