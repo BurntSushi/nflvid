@@ -74,9 +74,9 @@ play identifier from `nflgame`.
 
 `nflvid` operates by understanding two different directory hierarchies. One is 
 a directory containing one file for each game. The other is a directory with a 
-sub-directory for each game. Each sub-directory contains a single file for each 
-play in that game. The former is known as the `footage_dir` while the latter is 
-known as `footage_play_dir`.
+sub-directory for each game, where each sub-directory contains a single file 
+for each play in that game. The former is known as the `footage_dir` while the 
+latter is known as `footage_play_dir`.
 
 So to start downloading the "all-22" footage to `/home/you/pats/full` for 
 every New England game in 2012, you could use the following command to start 
