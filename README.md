@@ -78,7 +78,7 @@ sub-directory for each game, where each sub-directory contains a single file
 for each play in that game. The former is known as the `footage_dir` while the 
 latter is known as `footage_play_dir`.
 
-So to start downloading the "all-22" footage to `/home/you/pats/full` for 
+To start downloading the "all-22" footage to `/home/you/pats/full` for 
 every New England game in 2012, you could use the following command to start 
 with: (The lone `--` before the directory is necessary since more than one team 
 can be specified with the `--teams` option.)
