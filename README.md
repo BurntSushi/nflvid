@@ -69,3 +69,61 @@ play identifier from `nflgame`.
   program)
 * [rtmpdump](http://www.imagemagick.org/) (to download rtmp streams)
 
+
+## Basic usage
+
+`nflvid` operates by understanding two different directory hierarchies. One is 
+a directory containing one file for each game. The other is a directory with a 
+sub-directory for each game. Each sub-directory contains a single file for each 
+play in that game. The former is known as the `footage_dir` while the latter is 
+known as `footage_play_dir`.
+
+So to start downloading the "all-22" footage to `/home/you/pats/full` for 
+every New England game in 2012, you could use the following command to start 
+with: (The lone `--` before the directory is necessary since more than one team 
+can be specified with the `--teams` option.)
+
+    nflvid-footage --dry-run --season 2012 --teams NE -- /home/you/pats/full
+
+Note the use of the `--dry-run` flag. When set, this only downloads the first 
+30 seconds of each game. The point is to test that your environment is 
+configured correctly before starting a long-running job. If the dry run 
+completes OK, then try playing the files it downloaded in 
+`/home/you/pats/full`. If all is well, proceed with downloading the full 
+video:
+
+    nflvid-footage --season 2012 --teams NE -- /home/you/pats/full
+
+Sometimes video downloads can fail (although it is rare), so make sure to watch 
+the output of `nflvid-footage`. It will tell you if a download is incomplete. 
+If so, delete the video and re-run the command. **The program will not 
+re-download footage that is already on disk!**
+
+Once you've downloaded some games, you can now try slicing the footage into 
+plays. The following command will put the sliced plays into 
+`/home/you/pats/pbp`:
+
+    nflvid-slice --dry-run /home/you/pats/pbp /home/you/pats/full/*.mp4
+
+Note once again the `--dry-run` flag. When slicing, this flag will only slice 
+the first ten plays in a game. Although slicing doesn't take as long as 
+downloading (since there is no transcoding), it's still worth it to try 
+something quick to make sure things are working. After that's done, check the 
+contents of `/home/you/pats/pbp`. You should see a directory for each game 
+video in `/home/you/pats/full`. If the video of the plays is OK, then 
+remove the `--dry-run` flag:
+
+    nflvid-slice /home/you/pats/pbp /home/you/pats/full/*.mp4
+
+Note that you can keep running this same command over and over again. **Plays 
+will not be resliced if they are already on disk**.
+
+Finally, since the meta data describing the start time of each play is 
+sometimes incomplete, you can add place-holder videos for each missing play 
+that contain a static 10-second-long textual description of the play:
+
+    nflvid-slice --add-missing-plays /home/you/pats/pbp /home/you/pats/full/*.mp4
+
+Please check out `nflvid-footage --help` and `nflvid-slice --help` for more 
+options.
+
