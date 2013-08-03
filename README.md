@@ -9,7 +9,7 @@ In particular, this library provides routines to do the following:
   - Cut the game footage into pieces where each piece corresponds to a single 
     play.
 
-  - Provide a couple API functions for accessing the file path of a particular
+  - Provide a few API functions for accessing the file path of a particular
     play by integration with [nflgame](https://github.com/BurntSushi/nflgame).
 
 The methods used in this library rely heavily on the open availability of data 
