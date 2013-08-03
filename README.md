@@ -7,7 +7,7 @@ In particular, this library provides routines to do the following:
     things, describes the start time of every play in the game.
 
   - Cut the game footage into pieces where each piece corresponds to a single 
-    game.
+    play.
 
   - Provide a couple API functions for accessing the file path of a particular
     play by integration with [nflgame](https://github.com/BurntSushi/nflgame).
