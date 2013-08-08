@@ -25,7 +25,7 @@ import urllib2
 import bs4
 
 import eventlet
-httplib2 = eventlet.import_patched('httplib2')
+_httplib2 = eventlet.import_patched('httplib2')
 import eventlet.green.subprocess as subprocess
 
 from nflgame import OrderedDict
@@ -239,8 +239,6 @@ def artificial_slice(footage_play_dir, gobj, gobj_play):
     outdir = _play_path(footage_play_dir, gobj)
     outpath = path.join(outdir, '%04d.mp4' % int(gobj_play.playid))
 
-    # def _quote(s): 
-        # return "'" + s.replace("'", "'\\''") + "'" 
     pango = '<span size="20000" foreground="white">'
     with tempfile.NamedTemporaryFile(mode='w+', suffix='.png') as tmp:
         cmd = ['convert',
@@ -262,6 +260,7 @@ def artificial_slice(footage_play_dir, gobj, gobj_play):
                outpath,
                ]
         _run_command(cmd)
+
 
 def slice_play(footage_play_dir, full_footage_file, gobj, play,
                max_duration=0, cut_scoreboard=True):
@@ -334,7 +333,7 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
     # Let's check to see if the URL exists. We could let ffmpeg catch
     # the error, but since this is a common error, let's show something
     # nicer than a bunch of ffmpeg vomit.
-    resp, _ = httplib2.Http().request(url, 'HEAD')
+    resp, _ = _httplib2.Http().request(url, 'HEAD')
     if resp['status'] != '200':
         _eprint('BAD URL (http status %s) for game %s: %s'
                 % (resp['status'], _nice_game(gobj), url))
