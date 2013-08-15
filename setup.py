@@ -1,17 +1,15 @@
+import codecs
 from distutils.core import setup
+import os.path as path
 
-longdesc = \
-'''A simple library to download, slice and search NFL game footage on a play-by-play basis.
-
-This library comes with preloaded play-by-play meta data, which describes the start time of each play in the game footage. However, the actual footage does not come with this library and is not released by me. This package therefore provides utilities to batch download NFL Game Footage from the original source.
-
-Once game footage is downloaded, you can use this library to search plays and construct a playlist to play in any video player.'''
+cwd = path.dirname(__file__)
+longdesc = codecs.open(path.join(cwd, 'longdesc.rst'), 'r', 'utf-8').read()
 
 setup(
     name='nflvid',
     author='Andrew Gallant',
     author_email='nflvid@burntsushi.net',
-    version='0.0.11',
+    version='0.0.12',
     license='WTFPL',
     description='A simple library to download, slice and search NFL game '
                 'footage on a play-by-play basis.',
@@ -33,7 +31,8 @@ setup(
     packages=['nflvid'],
     package_dir={'nflvid': 'nflvid'},
     package_data={'nflvid': ['schedule-status', 'pbp-xml/*.xml.gz']},
-    data_files=[('share/doc/nflvid', ['README.md', 'COPYING', 'INSTALL']),
+    data_files=[('share/doc/nflvid', ['README.md', 'longdesc.rst',
+                                      'COPYING', 'INSTALL']),
                 ('share/doc/nflvid/doc', ['doc/nflvid.m.html'])],
     install_requires=['httplib2', 'eventlet', 'beautifulsoup4', 'nflgame'],
     scripts=['scripts/nflvid-footage', 'scripts/nflvid-slice']

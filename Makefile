@@ -7,13 +7,17 @@ docs:
 pypi: docs
 	sudo python2 setup.py register sdist upload
 
-pypi-meta:
-	python2 setup.py register
+longdesc.rst: nflvid/__init__.py docstring
+	pandoc -f markdown -t rst -o longdesc.rst docstring
+	rm -f docstring
 
-dev-install:
+docstring: nflvid/__init__.py
+	./extract-docstring > docstring
+
+dev-install: docs longdesc.rst
 	[[ -n "$$VIRTUAL_ENV" ]] || exit
 	rm -rf ./dist
-	python2 setup.py sdist
+	python setup.py sdist
 	pip install -U dist/*.tar.gz
 
 pep8:

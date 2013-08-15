@@ -1,16 +1,15 @@
 """
-Introduction
-============
 A simple library to download, slice and search NFL game footage on a
 play-by-play basis.
 
-This library comes with preloaded play-by-play meta data, which describes the
-start time of each play in the game footage. However, the actual footage does
-not come with this library and is not released by me. This package therefore
-provides utilities to batch download NFL Game Footage from the original source.
+This library comes with preloaded play-by-play meta data, which
+describes the start time of each play in the game footage. However,
+the actual footage does not come with this library and is not released
+by me. This package therefore provides utilities to batch download NFL
+Game Footage from the original source.
 
-Once game footage is downloaded, you can use this library to search plays and
-construct a playlist to play in any video player.
+Once game footage is downloaded, you can use this library to search
+plays and construct a playlist to play in any video player.
 """
 
 import gzip
@@ -30,6 +29,11 @@ import eventlet.green.subprocess as subprocess
 
 from nflgame import OrderedDict
 
+__pdoc__ = {}
+
+__broadcast_cache = {}  # game eid -> play id -> Play
+__coach_cache = {}  # game eid -> play id -> Play
+
 _xmlf = path.join(path.split(__file__)[0], 'pbp-xml', '%s-%s.xml.gz')
 _xml_base_url = 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml'
 _coach_url = 'rtmp://neulionms.fcod.llnwd.net/a5306/e1/mp4:' \
@@ -41,9 +45,6 @@ _coach_url = (
 )
 _broadcast_url = 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
                  '%s/%s/%s/%s/2_%s_%s_%s_%s_h_whole_1_%s.mp4.m3u8'
-
-__broadcast_cache = {}  # game eid -> play id -> Play
-__coach_cache = {}  # game eid -> play id -> Play
 
 
 def _eprint(s):
@@ -66,8 +67,8 @@ def broadcast_url(gobj, quality='1600'):
 
 def coach_url(gobj):
     """
-    Returns the rtmp URL as a triple for the coach footage
-    of the given game. The elemtns of the triple are::
+    Returns the rtmp URL as a triple for the coach footage of the given
+    game. The elements of the triple are:
 
         (rtmp server, rtmp app name, rtmp playpath)
 
@@ -82,8 +83,8 @@ def coach_url(gobj):
 
 def footage_full(footage_dir, gobj):
     """
-    Returns the path to the full video for a given game inside an nflvid
-    footage directory.
+    Returns the path to the full video for a given game inside an
+    nflvid footage directory.
 
     If the full footage doesn't exist, then None is returned.
     """
@@ -98,8 +99,8 @@ def footage_plays(footage_play_dir, gobj):
     Returns a list of all footage broken down by play inside an nflvid
     footage directory. The list is sorted numerically by play id.
 
-    If no footage breakdown exists for the game provided, then an empty list
-    is returned.
+    If no footage breakdown exists for the game provided, then an empty
+    list is returned.
     """
     fp = _play_path(footage_play_dir, gobj)
     if not os.access(fp, os.R_OK):
@@ -112,7 +113,7 @@ def footage_play(footage_play_dir, gobj, playid):
     Returns a file path to an existing play slice in the footage play
     directory for the game and play given.
 
-    If the file for the play is not readable, then None is returned.
+    If the file for the play is not readable, then `None` is returned.
     """
     gamedir = _play_path(footage_play_dir, gobj)
     fp = path.join(gamedir, '%04d.mp4' % int(playid))
@@ -137,9 +138,9 @@ def _nice_game(gobj):
 def unsliced_plays(footage_play_dir, gobj, coach=True, dry_run=False):
     """
     Scans the game directory inside footage_play_dir and returns a list
-    of plays that haven't been sliced yet. In particular, a play is only
-    considered sliced if the following file is readable, assuming {playid}
-    is its play id::
+    of plays that haven't been sliced yet. In particular, a play is
+    only considered sliced if the following file is readable, assuming
+    {playid} is its play id:
 
         {footage_play_dir}/{eid}-{gamekey}/{playid}.mp4
 
@@ -147,14 +148,14 @@ def unsliced_plays(footage_play_dir, gobj, coach=True, dry_run=False):
     returned in the list.
 
     If the list is empty, then all plays for the game have been sliced.
-    Alternatively, None can be returned if there was a problem retrieving
-    the play-by-play meta data.
+    Alternatively, `None` can be returned if there was a problem
+    retrieving the play-by-play meta data.
 
-    If coach is False, then play timings for broadcast footage will be
-    used instead of coach timings.
+    If `coach` is `False`, then play timings for broadcast footage will
+    be used instead of coach timings.
 
-    If dry_run is True, then only the first 10 plays of the game are
-    sliced.
+    If `dry_run` is `True`, then only the first 10 plays of the game
+    are sliced.
     """
     ps = plays(gobj, coach)
     outdir = _play_path(footage_play_dir, gobj)
@@ -174,28 +175,28 @@ def unsliced_plays(footage_play_dir, gobj, coach=True, dry_run=False):
 def slice(footage_play_dir, full_footage_file, gobj, coach=True,
           threads=4, dry_run=False):
     """
-    Uses ffmpeg to slice the given footage file into play-by-play pieces.
-    The full_footage_file should point to a full game downloaded with
-    nflvid-footage and gobj should be the corresponding nflgame.game.Game
-    object.
+    Uses `ffmpeg` to slice the given footage file into play-by-play
+    pieces.  The `full_footage_file` should be a path to a full
+    game downloaded with `nflvid-footage` and `gobj` should be the
+    corresponding `nflgame.game.Game` object.
 
-    The footage_play_dir is where the pieces will be saved::
+    The `footage_play_dir` is where the pieces will be saved:
 
         {footage_play_dir}/{eid}-{gamekey}/{playid}.mp4
 
     This function will not duplicate work. If a video file exists for
     a particular play, then slice will not regenerate it.
 
-    Note that this function uses an eventlet green pool to run multiple
-    ffmpeg instances simultaneously. The maximum number of threads to
-    use is specified by threads. This function only terminates when all
-    threads have finished processing.
+    Note that this function uses an `eventlet` green pool to run
+    multiple `ffmpeg` instances simultaneously. The maximum number
+    of threads to use is specified by `threads`. This function only
+    terminates when all threads have finished processing.
 
-    If coach is False, then play timings for broadcast footage will be
-    used instead of coach timings.
+    If `coach` is `False`, then play timings for broadcast footage will
+    be used instead of coach timings.
 
-    If dry_run is true, then only the first 10 plays of the game are
-    sliced.
+    If `dry_run` is `True`, then only the first 10 plays of the game
+    are sliced.
     """
     outdir = _play_path(footage_play_dir, gobj)
     if not os.access(outdir, os.R_OK):
@@ -226,15 +227,14 @@ def artificial_slice(footage_play_dir, gobj, gobj_play):
     """
     Creates a video file that contains a single static image with a
     textual description of the play. The purpose is to provide some
-    representation of a play even if its video form doesn't exist.
-    (Or more likely, the play-by-play meta data for that play is
-    corrupt.)
+    representation of a play even if its video form doesn't exist. (Or
+    more likely, the play-by-play meta data for that play is corrupt.)
 
-    This function requires the use of ImageMagick's convert with
+    This function requires the use of ImageMagick's `convert` with
     pango support.
 
-    Note that gobj_play is an nflgame.game.Play object and not an
-    nflvid.Play object.
+    Note that `gobj_play` is an `nflgame.game.Play` object and not a
+    `nflvid.Play` object.
     """
     outdir = _play_path(footage_play_dir, gobj)
     outpath = path.join(outdir, '%04d.mp4' % int(gobj_play.playid))
@@ -265,22 +265,22 @@ def artificial_slice(footage_play_dir, gobj, gobj_play):
 def slice_play(footage_play_dir, full_footage_file, gobj, play,
                max_duration=0, cut_scoreboard=True):
     """
-    This is just like slice, but it only slices the play provided.
-    In typical cases, slice should be used since it makes sure not
-    to duplicate work.
+    This is just like `nflvid.slice`, but it only slices the play
+    provided.  In typical cases, `nflvid.slice` should be used since it
+    makes sure not to duplicate work.
 
     This function will not check if the play-by-play directory for
-    gobj has been created.
+    `gobj` has been created.
 
-    max_duration is used to cap the length of a play. This drastically
-    cuts down on the time required to slice a game and the storage
-    requirements of a game at the cost of potentially missing bigger
-    plays. This is particularly useful if you are slicing broadcast
-    footage, where imposing a cap at about 15 seconds can decrease
-    storage and CPU requirements by more than half without missing much.
+    `max_duration` is used to cap the length of a play. This
+    drastically cuts down on the storage requirements of a game at the
+    cost of potentially missing longer plays. This is particularly
+    useful if you are slicing broadcast footage, where imposing a cap
+    at about 15 seconds can decrease storage requirements by more than
+    half without missing much.
 
-    When cut_scoreboard is True, the first 3.0 seconds of
-    the play will be clipped to remove the scoreboard view.
+    When `cut_scoreboard` is `True`, the first 3.0 seconds of the play
+    will be clipped to remove the scoreboard view.
     """
     outdir = _play_path(footage_play_dir, gobj)
     st = play.start
@@ -312,17 +312,19 @@ def slice_play(footage_play_dir, full_footage_file, gobj, play,
 
 def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
     """
-    Starts an ffmpeg process to download the full broadcast of the given
-    game with the quality provided. The qualities available are:
+    Starts an `ffmpeg` process to download the full broadcast of the
+    given game with the quality provided. The qualities available are:
     400, 800, 1200, 1600, 2400, 3000, 4500 with 4500 being the best.
 
-    The footage will be saved to the following path::
+    The footage will be saved to the following path:
 
         footage_dir/{eid}-{gamekey}.mp4
 
-    If footage is already at that path, then a LookupError is raised.
+    If footage is already at that path, then an
+    `exceptions.LookupError` is raised.
 
-    A full game's worth of footage at a quality of 1600 is about 2GB.
+    A full game's worth of broadcast footage at a quality of 1600 is
+    about **2GB**.
     """
     fp = _full_path(footage_dir, gobj)
     if os.access(fp, os.R_OK):
@@ -360,16 +362,18 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
 
 def download_coach(footage_dir, gobj, dry_run=False):
     """
-    Starts an rtmpdump process to download the full coach footage of the
-    given game. Currently, the only quality available is 1600.
+    Starts an `rtmpdump` process to download the full coach footage of
+    the given game. Currently, the only quality available is 1600.
 
-    The footage will be saved to the following path::
+    The footage will be saved to the following path:
 
         footage_dir/{eid}-{gamekey}.mp4
 
-    If footage is already at that path, then a LookupError is raised.
+    If footage is already at that path, then an
+    `exceptions.LookupError` is raised.
 
-    A full game's worth of footage at a quality of 1600 is about 1GB.
+    A full game's worth of footage at a quality of 1600 is about
+    **1GB**.
     """
     fp = _full_path(footage_dir, gobj)
     if os.access(fp, os.R_OK):
@@ -427,12 +431,12 @@ def _run_command(cmd):
 def plays(gobj, coach=True):
     """
     Returns an ordered dictionary of all plays for a particular game
-    with timings for the coach footage. If coach is False, then the
+    with timings for the coach footage. If `coach` is `False`, then the
     timings will be for the broadcast footage.
 
-    The game must be a nflgame.game.Game object.
+    The game `gobj` must be an `nflgame.game.Game` object.
 
-    If there is a problem retrieving the data, None is returned.
+    If there is a problem retrieving the data, `None` is returned.
 
     If the game is over, then the XML data is saved to disk.
     """
@@ -467,29 +471,43 @@ def plays(gobj, coach=True):
 
 def play(gobj, playid, coach=True):
     """
-    Returns a Play object given a game and a play id with timings for
-    the coach footage. If coach is False, then the timings will be for
-    the broadcast footage.
+    Returns a `nflvid.Play` object given a game and a play id with
+    timings for the coach footage. If `coach` is `False`, then the
+    timings will be for the broadcast footage.
 
-    The game must be a nflgame.game.Game object.
+    The game `gobj` must be an `nflgame.game.Game` object.
 
-    If a play with the given id does not exist, None is returned.
+    If a play with the given id does not exist, `None` is returned.
     """
     return plays(gobj).get(playid, None)
 
 
 class Play (object):
     """
-    Represents a single play with meta data that ties it to game footage.
-    The footage_start corresponds to the 'ArchiveTCIN' or 'CATIN', which
-    is when the play starts. Since there is no record of when a play
-    stops, the end is computed by using the start time of the next play.
-    If it's the last play recorded, then the end time is None.
-
-    The play id is the foreign key that maps to play data stored in nflgame.
+    Represents the start and end timings of single play in coach or
+    broadcast footage.
     """
+
     def __init__(self, start, end, playid):
-        self.start, self.end, self.playid = start, end, playid
+        self.start = start
+        """
+        Corresponds to the `ArchiveTCIN` or `CATIN` field in the source
+        data. `ArchiveTCIN` is used for broadcast footage while `CATIN`
+        is used for coach footage.
+        """
+
+        self.end = end
+        """
+        The end time of the play. This is typically the start time of
+        the next play (from `ArchiveTCIN` or `CATIN`). When the next
+        play isn't available, this is `None`.
+        """
+
+        self.playid = playid
+        """
+        A numeric play identifier that serves as a foreign key from an
+        `nflgame.game.Play` object to a `nflvid.Play` object.
+        """
 
     def idstr(self):
         """Returns a string play id padded with zeroes."""
@@ -501,15 +519,21 @@ class Play (object):
 
 class PlayTime (object):
     """
-    Represents a footage time point, in the format HH:MM:SS:MMM where
-    MMM can be either 2 or 3 digits.
+    Represents a footage time point retrieved from the source XML
+    meta data.
     """
+    __pdoc__['hh'] = 'The hour portion of the play time.'
+    __pdoc__['mm'] = 'The minutes portion of the play time.'
+    __pdoc__['ss'] = 'The seconds portion of the play time.'
+    __pdoc__['milli'] = 'The milliseconds portion of the play time.'
+
     def __init__(self, point=None, seconds=None):
         """
-        Construct a PlayTime object given a point in time in the format
-        HH:MM:SS:MMM where MMM can be either 2 or 3 digits.
+        Construct a PlayTime object given a `point` in time in the
+        format `HH:MM:SS:MMM` where `MMM` can be either 2 or 3 digits.
 
-        Alternatively, seconds can be provided (which may be a float).
+        Alternatively, `seconds` can be provided (which may be a
+        float).
         """
         if seconds is not None:
             milli = int(1000 * (seconds - math.floor(seconds)))
@@ -552,7 +576,8 @@ class PlayTime (object):
 
     def add_seconds(self, seconds):
         """
-        Returns a new PlayTime with seconds (int or float) added to self.
+        Returns a new PlayTime with `seconds` (int or float) added to
+        self.
         """
         return PlayTime(seconds=self.fractional() + seconds)
 
@@ -567,7 +592,8 @@ class PlayTime (object):
 
     def fractional(self):
         """
-        Returns this time point as fractional seconds based on milliseconds.
+        Returns this time point as fractional seconds based on
+        milliseconds.
         """
         secs = (self.hh * 60 * 60) + (self.mm * 60) + self.ss
         secs = (1000 * secs) + self.milli
@@ -578,8 +604,8 @@ class PlayTime (object):
 
     def __sub__(self, other):
         """
-        Returns the difference rounded to nearest second between
-        two time points.  The 'other' time point must take place before the
+        Returns the difference rounded to nearest second between two
+        time points.  The `other` time point must take place before the
         current time point.
         """
         assert other <= self, '%s is not <= than %s' % (other, self)
@@ -591,9 +617,10 @@ class PlayTime (object):
 
 def _xml_plays(data, coach=True):
     """
-    Parses the XML raw data given into an ordered dictionary of Play
-    objects corresponding to coach play timings. If coach is set to
-    False, then play timings for the broadcast are retrieved.
+    Parses the XML raw string `data` given into an ordered dictionary
+    of `nflvid.Play` objects corresponding to coach play timings. If
+    `coach` is set to `False`, then play timings for the broadcast are
+    retrieved.
 
     The dictionary is keyed by play id.
     """
@@ -655,14 +682,17 @@ def _xml_plays(data, coach=True):
 
 def _get_xml_data(eid=None, gamekey=None, fpath=None):
     """
-    Returns the XML play data corresponding to the game given. A game must
-    be specified in one of two ways: by providing the eid and gamekey or
-    by providing the file path to a gzipped XML file.
+    Returns the XML play data corresponding to the game given. A game
+    must be specified in one of two ways: by providing the `eid` and
+    `gamekey` or by providing the file path `fpath` to a gzipped XML
+    file.
 
-    If the XML data is already on disk, it is read, decompressed and returned.
+    If the XML data is already on disk, it is read, decompressed and
+    returned.
 
-    Otherwise, the XML data is downloaded from the NFL web site. If the data
-    doesn't exist yet or there was an error, _get_xml_data returns None.
+    Otherwise, the XML data is downloaded from the NFL web
+    site. If the data doesn't exist yet or there was an error,
+    `nflvid._get_xml_data` returns None.
     """
     assert (eid is not None and gamekey is not None) or fpath is not None
 
