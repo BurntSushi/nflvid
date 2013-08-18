@@ -1,9 +1,26 @@
-It should be as straight-forward as
+You should install nflvid using pip, which will automatically install 
+dependencies for you from PyPI:
 
+  sudo pip2 install nflvid
+
+(Use `pip2` when Python 3 is the default Python installation on your system.
+You can discover this by running `pip --help` and seeing which version of 
+Python it's using. If it's 3.x, then you'll need to install a Python 2 version 
+of pip which is usually called `pip2`.)
+
+If you don't want to use pip, you can install nflvid manually by cloning the
+repository and installing with setuptools:
+
+  git clone git://github.com/BurntSushi/nflvid
+  cd nflvid
   sudo python2 setup.py install
 
-You should now be able to run a Python interpreter and e.g., find out
-the URL of an HLS stream of an NFL game:
+But this will require that you install all of the dependencies yourself 
+(through pip or your package manager). The dependencies are listed in the 
+README and are all available on PyPI.
+
+After installation, you should now be able to run a Python interpreter and 
+e.g., find out the URL of an HLS stream of an NFL game:
 
 [andrew@Liger ~] python2
 Python 2.7.5 (default, May 12 2013, 12:00:47) 
