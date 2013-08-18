@@ -1794,7 +1794,7 @@ plays and construct a playlist to play in any video player.</p>
       
     <div class="item">
       <div class="name def" id="nflvid.artificial_slice">
-        <p>def <span class="ident">artificial_slice</span>(</p><p>footage_play_dir, gobj, gobj_play, **keywords)</p>
+        <p>def <span class="ident">artificial_slice</span>(</p><p>footage_play_dir, gobj, gobj_play)</p>
       </div>
       
 
@@ -1858,7 +1858,7 @@ pango support.</p>
       
     <div class="item">
       <div class="name def" id="nflvid.broadcast_url">
-        <p>def <span class="ident">broadcast_url</span>(</p><p>gobj, quality='1600', **keywords)</p>
+        <p>def <span class="ident">broadcast_url</span>(</p><p>gobj, quality='1600')</p>
       </div>
       
 
@@ -1893,7 +1893,7 @@ URLs vary unpredictably (to me) from game to game.</p></div>
       
     <div class="item">
       <div class="name def" id="nflvid.coach_url">
-        <p>def <span class="ident">coach_url</span>(</p><p>gobj, **keywords)</p>
+        <p>def <span class="ident">coach_url</span>(</p><p>gobj)</p>
       </div>
       
 
@@ -1933,7 +1933,7 @@ game. The elements of the triple are:</p>
       
     <div class="item">
       <div class="name def" id="nflvid.download_broadcast">
-        <p>def <span class="ident">download_broadcast</span>(</p><p>footage_dir, gobj, quality='1600', dry_run=False, **keywords)</p>
+        <p>def <span class="ident">download_broadcast</span>(</p><p>footage_dir, gobj, quality='1600', dry_run=False)</p>
       </div>
       
 
@@ -2012,7 +2012,7 @@ about <strong>2GB</strong>.</p></div>
       
     <div class="item">
       <div class="name def" id="nflvid.download_coach">
-        <p>def <span class="ident">download_coach</span>(</p><p>footage_dir, gobj, dry_run=False, **keywords)</p>
+        <p>def <span class="ident">download_coach</span>(</p><p>footage_dir, gobj, dry_run=False)</p>
       </div>
       
 
@@ -2082,7 +2082,7 @@ the given game. Currently, the only quality available is 1600.</p>
       
     <div class="item">
       <div class="name def" id="nflvid.footage_full">
-        <p>def <span class="ident">footage_full</span>(</p><p>footage_dir, gobj, **keywords)</p>
+        <p>def <span class="ident">footage_full</span>(</p><p>footage_dir, gobj)</p>
       </div>
       
 
@@ -2115,7 +2115,7 @@ nflvid footage directory.</p>
       
     <div class="item">
       <div class="name def" id="nflvid.footage_play">
-        <p>def <span class="ident">footage_play</span>(</p><p>footage_play_dir, gobj, playid, **keywords)</p>
+        <p>def <span class="ident">footage_play</span>(</p><p>footage_play_dir, gobj, playid)</p>
       </div>
       
 
@@ -2149,7 +2149,7 @@ directory for the game and play given.</p>
       
     <div class="item">
       <div class="name def" id="nflvid.footage_plays">
-        <p>def <span class="ident">footage_plays</span>(</p><p>footage_play_dir, gobj, **keywords)</p>
+        <p>def <span class="ident">footage_plays</span>(</p><p>footage_play_dir, gobj)</p>
       </div>
       
 
@@ -2184,7 +2184,7 @@ list is returned.</p></div>
       
     <div class="item">
       <div class="name def" id="nflvid.play">
-        <p>def <span class="ident">play</span>(</p><p>gobj, playid, coach=True, **keywords)</p>
+        <p>def <span class="ident">play</span>(</p><p>gobj, playid, coach=True)</p>
       </div>
       
 
@@ -2219,7 +2219,7 @@ timings will be for the broadcast footage.</p>
       
     <div class="item">
       <div class="name def" id="nflvid.plays">
-        <p>def <span class="ident">plays</span>(</p><p>gobj, coach=True, **keywords)</p>
+        <p>def <span class="ident">plays</span>(</p><p>gobj, coach=True)</p>
       </div>
       
 
@@ -2283,7 +2283,7 @@ timings will be for the broadcast footage.</p>
       
     <div class="item">
       <div class="name def" id="nflvid.slice">
-        <p>def <span class="ident">slice</span>(</p><p>footage_play_dir, full_footage_file, gobj, coach=True, threads=4, dry_run=False, **keywords)</p>
+        <p>def <span class="ident">slice</span>(</p><p>footage_play_dir, full_footage_file, gobj, coach=True, threads=4, dry_run=False)</p>
       </div>
       
 
@@ -2370,7 +2370,7 @@ are sliced.</p></div>
       
     <div class="item">
       <div class="name def" id="nflvid.slice_play">
-        <p>def <span class="ident">slice_play</span>(</p><p>footage_play_dir, full_footage_file, gobj, play, max_duration=0, cut_scoreboard=True, **keywords)</p>
+        <p>def <span class="ident">slice_play</span>(</p><p>footage_play_dir, full_footage_file, gobj, play, max_duration=0, cut_scoreboard=True)</p>
       </div>
       
 
@@ -2448,7 +2448,7 @@ will be clipped to remove the scoreboard view.</p></div>
       
     <div class="item">
       <div class="name def" id="nflvid.unsliced_plays">
-        <p>def <span class="ident">unsliced_plays</span>(</p><p>footage_play_dir, gobj, coach=True, dry_run=False, **keywords)</p>
+        <p>def <span class="ident">unsliced_plays</span>(</p><p>footage_play_dir, gobj, coach=True, dry_run=False)</p>
       </div>
       
 
@@ -2616,7 +2616,7 @@ is used for coach footage.</p></div>
                   
     <div class="item">
       <div class="name def" id="nflvid.Play.__init__">
-        <p>def <span class="ident">__init__</span>(</p><p>self, start, end, playid, **keywords)</p>
+        <p>def <span class="ident">__init__</span>(</p><p>self, start, end, playid)</p>
       </div>
       
 
@@ -2653,7 +2653,7 @@ is used for coach footage.</p></div>
                   
     <div class="item">
       <div class="name def" id="nflvid.Play.idstr">
-        <p>def <span class="ident">idstr</span>(</p><p>self, **keywords)</p>
+        <p>def <span class="ident">idstr</span>(</p><p>self)</p>
       </div>
       
 
@@ -2797,7 +2797,7 @@ meta data.</p></div>
                   
     <div class="item">
       <div class="name def" id="nflvid.PlayTime.__init__">
-        <p>def <span class="ident">__init__</span>(</p><p>self, point=None, seconds=None, **keywords)</p>
+        <p>def <span class="ident">__init__</span>(</p><p>self, point=None, seconds=None)</p>
       </div>
       
 
@@ -2856,7 +2856,7 @@ float).</p></div>
                   
     <div class="item">
       <div class="name def" id="nflvid.PlayTime.add_seconds">
-        <p>def <span class="ident">add_seconds</span>(</p><p>self, seconds, **keywords)</p>
+        <p>def <span class="ident">add_seconds</span>(</p><p>self, seconds)</p>
       </div>
       
 
@@ -2883,7 +2883,7 @@ self.</p></div>
                   
     <div class="item">
       <div class="name def" id="nflvid.PlayTime.fractional">
-        <p>def <span class="ident">fractional</span>(</p><p>self, **keywords)</p>
+        <p>def <span class="ident">fractional</span>(</p><p>self)</p>
       </div>
       
 
@@ -2912,7 +2912,7 @@ milliseconds.</p></div>
                   
     <div class="item">
       <div class="name def" id="nflvid.PlayTime.seconds">
-        <p>def <span class="ident">seconds</span>(</p><p>self, **keywords)</p>
+        <p>def <span class="ident">seconds</span>(</p><p>self)</p>
       </div>
       
 

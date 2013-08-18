@@ -9,7 +9,7 @@ setup(
     name='nflvid',
     author='Andrew Gallant',
     author_email='nflvid@burntsushi.net',
-    version='0.0.13',
+    version='0.0.14',
     license='WTFPL',
     description='A simple library to download, slice and search NFL game '
                 'footage on a play-by-play basis.',
@@ -33,7 +33,7 @@ setup(
     package_data={'nflvid': ['schedule-status', 'pbp-xml/*.xml.gz']},
     data_files=[('share/doc/nflvid', ['README.md', 'longdesc.rst',
                                       'COPYING', 'INSTALL']),
-                ('share/doc/nflvid/doc', ['doc/nflvid.m.html'])],
+                ('share/doc/nflvid/doc', ['doc/nflvid/index.html'])],
     install_requires=['httplib2', 'eventlet', 'beautifulsoup4', 'nflgame'],
     scripts=['scripts/nflvid-footage', 'scripts/nflvid-slice']
 )
