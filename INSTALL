@@ -19,6 +19,9 @@ But this will require that you install all of the dependencies yourself
 (through pip or your package manager). The dependencies are listed in the 
 README and are all available on PyPI.
 
+Note that in order to actually process video footage, you will need ffmpeg,
+imagemagick and rtmpdump installed on your machine too.
+
 After installation, you should now be able to run a Python interpreter and 
 e.g., find out the URL of an HLS stream of an NFL game:
 
