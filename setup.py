@@ -9,7 +9,7 @@ setup(
     name='nflvid',
     author='Andrew Gallant',
     author_email='nflvid@burntsushi.net',
-    version='0.0.12',
+    version='0.0.13',
     license='WTFPL',
     description='A simple library to download, slice and search NFL game '
                 'footage on a play-by-play basis.',
