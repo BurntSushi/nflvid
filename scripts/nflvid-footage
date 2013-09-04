@@ -98,7 +98,7 @@ for (season, season_type, week, home, away), info in nflgame.schedule.games:
 
     g = nflgame.game.Game(info['eid'])
     if not args.show_url and not args.progress and not args.files \
-            and nflvid.footage_full(args.footage_dir, g) is not None:
+            and nflvid.footage_full(args.footage_dir, g.eid) is not None:
         continue
 
     matched.append(nflgame.game.Game(info['eid']))
@@ -107,13 +107,13 @@ if len(matched) == 0:
     fatal('No games matched your search criteria.')
 if args.files:
     for g in sorted(matched, key=lambda g: int(g.eid)):
-        p = nflvid.footage_full(args.footage_dir, g)
+        p = nflvid.footage_full(args.footage_dir, g.eid)
         if p is not None:
             print p
     sys.exit(0)
 if args.progress:
     for g in sorted(matched, key=lambda g: int(g.eid)):
-        status = nflvid.footage_full(args.footage_dir, g)
+        status = nflvid.footage_full(args.footage_dir, g.eid)
         status = os.path.basename(status) if status is not None else 'NONE'
 
         print 'Season %d, Week %02d, %03s at %03s (%s)' \

@@ -22,6 +22,21 @@ def fatal(s):
     sys.exit(1)
 
 
+def unsliced_game_plays(g):
+    """
+    Returns a list of unsliced plays in the `nflgame.game.Game` object.
+    """
+    unsliced = []
+    for p in g.drives.plays():
+        fp = nflvid.footage_play(args.footage_play_dir, g.eid, p.playid)
+        if fp is None:
+            unsliced.append(p)
+    if len(unsliced) == 0:
+        print 'All plays on record are sliced for game %s %s' \
+            % (g.eid, nflvid._nice_game(g))
+    return unsliced
+
+
 # Heuristically pick a good default value for threads.
 try:
     threads = multiprocessing.cpu_count()
@@ -96,30 +111,21 @@ if args.show_unsliced:
         for p in unsliced:
             print '    %s' % p
     sys.exit(0)
+
 if args.missing_plays:
     for g in games:
-        unsliced = []
-        for p in g.drives.plays():
-            if nflvid.footage_play(args.footage_play_dir, g, p.playid) is None:
-                unsliced.append(p)
+        unsliced = unsliced_game_plays(g)
         if len(unsliced) == 0:
-            print 'All plays on record are sliced for game %s %s' \
-                % (g.eid, nflvid._nice_game(g))
             continue
-
         print 'Unsliced plays for game %s %s' % (g.eid, nflvid._nice_game(g))
         for p in unsliced:
             print '    %04s  %s' % (p.playid, p)
     sys.exit(0)
+
 if args.add_missing_plays:
     for g in games:
-        unsliced = []
-        for p in g.drives.plays():
-            if nflvid.footage_play(args.footage_play_dir, g, p.playid) is None:
-                unsliced.append(p)
+        unsliced = unsliced_game_plays(g)
         if len(unsliced) == 0:
-            print 'All plays on record are sliced for game %s %s' \
-                % (g.eid, nflvid._nice_game(g))
             continue
 
         pool = eventlet.greenpool.GreenPool(args.threads)

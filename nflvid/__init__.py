@@ -34,7 +34,7 @@ __pdoc__ = {}
 __broadcast_cache = {}  # game eid -> play id -> Play
 __coach_cache = {}  # game eid -> play id -> Play
 
-_xmlf = path.join(path.split(__file__)[0], 'pbp-xml', '%s-%s.xml.gz')
+_xmlf = path.join(path.split(__file__)[0], 'pbp-xml', '%s.xml.gz')
 _xml_base_url = 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml'
 _coach_url = 'rtmp://neulionms.fcod.llnwd.net/a5306/e1/mp4:' \
              'u/nfl/nfl/coachtapes/%s/%s_all_1600'
@@ -81,20 +81,20 @@ def coach_url(gobj):
     )
 
 
-def footage_full(footage_dir, gobj):
+def footage_full(footage_dir, eid):
     """
     Returns the path to the full video for a given game inside an
     nflvid footage directory.
 
     If the full footage doesn't exist, then None is returned.
     """
-    fp = _full_path(footage_dir, gobj)
+    fp = _full_path(footage_dir, eid)
     if not os.access(fp, os.R_OK):
         return None
     return fp
 
 
-def footage_plays(footage_play_dir, gobj):
+def footage_plays(footage_play_dir, eid):
     """
     Returns a list of all footage broken down by play inside an nflvid
     footage directory. The list is sorted numerically by play id.
@@ -102,32 +102,34 @@ def footage_plays(footage_play_dir, gobj):
     If no footage breakdown exists for the game provided, then an empty
     list is returned.
     """
-    fp = _play_path(footage_play_dir, gobj)
+    fp = _play_path(footage_play_dir, eid)
     if not os.access(fp, os.R_OK):
         return []
     return sorted(os.listdir(fp), key=lambda s: int(s[0:-4]))
 
 
-def footage_play(footage_play_dir, gobj, playid):
+def footage_play(footage_play_dir, eid, playid, stat=True):
     """
     Returns a file path to an existing play slice in the footage play
     directory for the game and play given.
 
     If the file for the play is not readable, then `None` is returned.
+
+    If `stat` is `False`, then the file's access will not be checked.
     """
-    gamedir = _play_path(footage_play_dir, gobj)
+    gamedir = _play_path(footage_play_dir, eid)
     fp = path.join(gamedir, '%04d.mp4' % int(playid))
-    if not os.access(fp, os.R_OK):
+    if stat and not os.access(fp, os.R_OK):
         return None
     return fp
 
 
-def _full_path(footage_dir, g):
-    return path.join(footage_dir, '%s-%s.mp4' % (g.eid, g.gamekey))
+def _full_path(footage_dir, eid):
+    return path.join(footage_dir, '%s.mp4' % eid)
 
 
-def _play_path(footage_play_dir, g):
-    return path.join(footage_play_dir, '%s-%s' % (g.eid, g.gamekey))
+def _play_path(footage_play_dir, eid):
+    return path.join(footage_play_dir, '%s' % eid)
 
 
 def _nice_game(gobj):
@@ -142,7 +144,7 @@ def unsliced_plays(footage_play_dir, gobj, coach=True, dry_run=False):
     only considered sliced if the following file is readable, assuming
     {playid} is its play id:
 
-        {footage_play_dir}/{eid}-{gamekey}/{playid}.mp4
+        {footage_play_dir}/{eid}/{playid}.mp4
 
     All plays for the game given that don't fit this criteria will be
     returned in the list.
@@ -158,7 +160,7 @@ def unsliced_plays(footage_play_dir, gobj, coach=True, dry_run=False):
     are sliced.
     """
     ps = plays(gobj, coach)
-    outdir = _play_path(footage_play_dir, gobj)
+    outdir = _play_path(footage_play_dir, gobj.eid)
 
     unsliced = []
     if ps is None:
@@ -182,7 +184,7 @@ def slice(footage_play_dir, full_footage_file, gobj, coach=True,
 
     The `footage_play_dir` is where the pieces will be saved:
 
-        {footage_play_dir}/{eid}-{gamekey}/{playid}.mp4
+        {footage_play_dir}/{eid}/{playid}.mp4
 
     This function will not duplicate work. If a video file exists for
     a particular play, then slice will not regenerate it.
@@ -198,7 +200,7 @@ def slice(footage_play_dir, full_footage_file, gobj, coach=True,
     If `dry_run` is `True`, then only the first 10 plays of the game
     are sliced.
     """
-    outdir = _play_path(footage_play_dir, gobj)
+    outdir = _play_path(footage_play_dir, gobj.eid)
     if not os.access(outdir, os.R_OK):
         os.makedirs(outdir)
 
@@ -206,7 +208,7 @@ def slice(footage_play_dir, full_footage_file, gobj, coach=True,
     if unsliced is None or len(unsliced) == 0:
         # Only show an annoying error message if there are no sliced
         # plays on disk.
-        if not footage_plays(footage_play_dir, gobj):
+        if not footage_plays(footage_play_dir, gobj.eid):
             _eprint(
                 'There are no unsliced plays remaining for game %s %s.\n'
                 'If they have not been sliced yet, then the XML play-by-play '
@@ -236,7 +238,7 @@ def artificial_slice(footage_play_dir, gobj, gobj_play):
     Note that `gobj_play` is an `nflgame.game.Play` object and not a
     `nflvid.Play` object.
     """
-    outdir = _play_path(footage_play_dir, gobj)
+    outdir = _play_path(footage_play_dir, gobj.eid)
     outpath = path.join(outdir, '%04d.mp4' % int(gobj_play.playid))
 
     pango = '<span size="20000" foreground="white">'
@@ -282,7 +284,7 @@ def slice_play(footage_play_dir, full_footage_file, gobj, play,
     When `cut_scoreboard` is `True`, the first 3.0 seconds of the play
     will be clipped to remove the scoreboard view.
     """
-    outdir = _play_path(footage_play_dir, gobj)
+    outdir = _play_path(footage_play_dir, gobj.eid)
     st = play.start
     outpath = path.join(outdir, '%s.mp4' % play.idstr())
 
@@ -318,7 +320,7 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
 
     The footage will be saved to the following path:
 
-        footage_dir/{eid}-{gamekey}.mp4
+        footage_dir/{eid}.mp4
 
     If footage is already at that path, then an
     `exceptions.LookupError` is raised.
@@ -326,7 +328,7 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
     A full game's worth of broadcast footage at a quality of 1600 is
     about **2GB**.
     """
-    fp = _full_path(footage_dir, gobj)
+    fp = _full_path(footage_dir, gobj.eid)
     if os.access(fp, os.R_OK):
         raise LookupError('Footage path "%s" already exists.' % fp)
 
@@ -367,7 +369,7 @@ def download_coach(footage_dir, gobj, dry_run=False):
 
     The footage will be saved to the following path:
 
-        footage_dir/{eid}-{gamekey}.mp4
+        footage_dir/{eid}.mp4
 
     If footage is already at that path, then an
     `exceptions.LookupError` is raised.
@@ -375,7 +377,7 @@ def download_coach(footage_dir, gobj, dry_run=False):
     A full game's worth of footage at a quality of 1600 is about
     **1GB**.
     """
-    fp = _full_path(footage_dir, gobj)
+    fp = _full_path(footage_dir, gobj.eid)
     if os.access(fp, os.R_OK):
         raise LookupError('Footage path "%s" already exists.' % fp)
 
@@ -459,7 +461,7 @@ def plays(gobj, coach=True):
     __broadcast_cache[gobj.eid] = ps
 
     # Save the XML data to disk if the game is over.
-    fp = _xmlf % (gobj.eid, gobj.gamekey)
+    fp = _xmlf % gobj.eid
     if gobj.game_over() and not os.access(fp, os.R_OK):
         try:
             print >> gzip.open(fp, 'w+'), rawxml,
@@ -699,7 +701,7 @@ def _get_xml_data(eid=None, gamekey=None, fpath=None):
     if fpath is not None:
         return gzip.open(fpath).read()
 
-    fpath = _xmlf % (eid, gamekey)
+    fpath = _xmlf % eid
     if os.access(fpath, os.R_OK):
         return gzip.open(fpath).read()
     try:
