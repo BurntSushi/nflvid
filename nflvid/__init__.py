@@ -68,7 +68,7 @@ def broadcast_urls(gobj, quality='1600'):
     """
     month, day = gobj.eid[4:6], gobj.eid[6:8]
     return [
-        _broadcast_url \
+        _broadcast_url
         % (gobj.season(), month, day, gobj.gamekey, gobj.gamekey,
            gobj.away.lower(), gobj.home.lower(), gobj.season(), i, quality)
         for i in range(1, 4)
@@ -366,8 +366,8 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
     urls = broadcast_urls(gobj, quality)
     url = first_valid_broadcast_url(urls)
     if url is None:
-        _eprint('BAD URLs for game %s: %s' 
-                % ( _nice_game(gobj), ', '.join(urls)))
+        _eprint('BAD URLs for game %s: %s'
+                % (_nice_game(gobj), ', '.join(urls)))
         _eprint('FAILED to download game %s' % _nice_game(gobj))
         return
 
