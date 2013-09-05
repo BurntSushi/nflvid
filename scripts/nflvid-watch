@@ -111,7 +111,7 @@ if __name__ == '__main__':
         for c in getattr(args, group):
             eval('q.%s(%s)' % (group, c))
     if args.sort is None:
-        q.sort([('gsis_id', 'asc'), ('time', 'asc')])
+        q.sort([('gsis_id', 'asc'), ('time', 'asc'), ('play_id', 'asc')])
     else:
         q.sort(map(tuple, args.sort))
     if args.limit > 0:
