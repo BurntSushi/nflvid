@@ -121,15 +121,18 @@ if args.progress:
     sys.exit(0)
 if args.show_url:
     for g in matched:
-        url = nflvid.broadcast_url(g, args.quality)
+        urls = nflvid.broadcast_urls(g, args.quality)
         print nflvid._nice_game(g)
-        print url
         if args.show_dead:
-            if is_dead(url):
+            url = nflvid.first_valid_broadcast_url(urls)
+            if url is None:
                 print 'DEAD'
             else:
-                print 'ALIVE'
+                print url
+        else:
+            print '\n'.join(urls)
         print '-' * 80
+        sys.stdout.flush()
     sys.exit(0)
 
 eprint("These are the games that match your search criteria:")

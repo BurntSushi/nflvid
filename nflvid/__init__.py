@@ -45,25 +45,55 @@ _coach_url = (
     'mp4:u/nfl/nfl/coachtapes/%s/%s_all_1600',
 )
 _broadcast_url = 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
-                 '%s/%s/%s/%s/2_%s_%s_%s_%s_h_whole_1_%s.mp4.m3u8'
+                 '%s/%s/%s/%s/2_%s_%s_%s_%s_h_whole_%d_%s.mp4.m3u8'
 
 
 def _eprint(s):
     print >> sys.stderr, s
 
 
-def broadcast_url(gobj, quality='1600'):
+def broadcast_urls(gobj, quality='1600'):
     """
-    Returns the HTTP Live Stream URL (an m3u8 file) for the given game
-    and quality.
+    Returns possible HTTP Live Stream URLs (an m3u8 file) for the given
+    game and quality. Use `nflvid.broadcast_url_status` to determine
+    if it's a valid URL or not. Alternatively, use
+    `nflvid.first_valid_broadcast_url` to retrieve the first valid URL.
 
-    Note that this does not work with every game (yet). In particular,
-    URLs vary unpredictably (to me) from game to game.
+    The kludge here is that the broadcast URLs can vary slightly and
+    unpredictably from game to game. I haven't discovered a reliable
+    means of accurately predicting which URL is correct.
+
+    Note that it is unlikely any URL returned will be valid for
+    preseason or postseason games.
     """
     month, day = gobj.eid[4:6], gobj.eid[6:8]
-    return _broadcast_url \
+    return [
+        _broadcast_url \
         % (gobj.season(), month, day, gobj.gamekey, gobj.gamekey,
-           gobj.away.lower(), gobj.home.lower(), gobj.season(), quality)
+           gobj.away.lower(), gobj.home.lower(), gobj.season(), i, quality)
+        for i in range(1, 4)
+    ]
+
+
+def broadcast_url_status(url):
+    """
+    Returns the HTTP status as a string for the given broadcast URL. A
+    broadcast URL should be considered valid if and only if its HTTP
+    status is `200`.
+    """
+    resp, _ = _httplib2.Http().request(url, 'HEAD')
+    return resp['status']
+
+
+def first_valid_broadcast_url(urls):
+    """
+    Returns the first valid broadcast URL in the list. If there is no
+    valid broadcast URL, then `None` is returned.
+    """
+    for url in urls:
+        if broadcast_url_status(url) == '200':
+            return url
+    return None
 
 
 def coach_url(gobj):
@@ -247,7 +277,7 @@ def artificial_slice(footage_play_dir, gobj, gobj_play):
         cmd = ['convert',
                '-size', '640x480',  # size of coach footage. configurable?
                '-background', 'black',
-               'pango:%s%s</span>' % (pango, gobj_play),
+               'pango:\n\n\n\n\n\n\n\n\n\n%s%s</span>' % (pango, gobj_play),
                tmp.name,
                ]
         _run_command(cmd)
@@ -333,15 +363,11 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
     if os.access(fp, os.R_OK):
         raise LookupError('Footage path "%s" already exists.' % fp)
 
-    url = broadcast_url(gobj, quality)
-
-    # Let's check to see if the URL exists. We could let ffmpeg catch
-    # the error, but since this is a common error, let's show something
-    # nicer than a bunch of ffmpeg vomit.
-    resp, _ = _httplib2.Http().request(url, 'HEAD')
-    if resp['status'] != '200':
-        _eprint('BAD URL (http status %s) for game %s: %s'
-                % (resp['status'], _nice_game(gobj), url))
+    urls = broadcast_urls(gobj, quality)
+    url = first_valid_broadcast_url(urls)
+    if url is None:
+        _eprint('BAD URLs for game %s: %s' 
+                % ( _nice_game(gobj), ', '.join(urls)))
         _eprint('FAILED to download game %s' % _nice_game(gobj))
         return
 
