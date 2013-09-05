@@ -1,0 +1,131 @@
+#!/usr/bin/env python2
+
+from __future__ import absolute_import, division, print_function
+import argparse
+import os
+import sys
+
+from nfldb import connect, current, Query
+from nfldb import Clock, Enums, FieldPosition, PossessionTime
+Clock = Clock.from_str
+Field = FieldPosition
+PTime = PossessionTime.clock
+
+import nflvid
+import nflvid.vlc
+
+longdesc = \
+    '''
+    Watch NFL plays matching search criteria. Search criteria can be
+    specified using the flags described in `nflvid-watch --help`. All
+    criteria specified are conjunctive; disjunctive criteria must
+    be done manually in Python code. (See the documentation for the
+    nflvid.vlc module for an example.)
+
+    Note that criteria for games, drives, plays and players is
+    specified as Python code. Namely, it is passed to Python's `eval`
+    function.
+    '''
+
+if __name__ == '__main__':
+    # Connect first so we can use some smart default values.
+    db = connect()
+    cur_type, cur_year, cur_week = current(db)
+
+    parser = argparse.ArgumentParser(
+        description=longdesc,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    aa = parser.add_argument
+    aa('footage_play_dir', type=str, nargs='?',
+       default=os.getenv('NFLVID_FOOTAGE_PLAY_DIR'),
+       help='The play footage directory used to store chopped play-by-play '
+            'video. This value can be set by default with the '
+            'NFLVID_FOOTAGE_PLAY_DIR environment variable.')
+    aa('--text', action='store_true',
+       help='Show only the text descriptions of each play, and then exist. '
+            'This is useful for refining your search criteria before '
+            'launching a video player.')
+    aa('-c', '--current', action='store_true',
+       help='If set, then the season type, year and week will be set to '
+            'what nfldb has recorded as the current values. As of now, they '
+            'are (%s, %d, %d)' % (cur_type, cur_year, cur_week))
+    aa('-y', '--year', type=int, default=None,
+       help='Alias for `--game "season_year={YEAR}"`. Set to `0` to disable.')
+    aa('-t', '--type', choices=map(str, Enums.season_phase) + ['Any'],
+       default='Regular',
+       help='Alias for `--game "season_type={TYPE}"`.')
+    aa('-w', '--week', type=int, default=None,
+       help='Alias for `--game "week={WEEK}"`. Set to `0` to disable.')
+    aa('-g', '--game', default=[], action='append',
+       type=str, metavar='GAME_SEARCH',
+       help='Specify a single argument to the `nfldb.Query.game` method.')
+    aa('-d', '--drive', default=[], action='append',
+       type=str, metavar='DRIVE_SEARCH',
+       help='Specify a single argument to the `nfldb.Query.drive` method.')
+    aa('-p', '--play', default=[], action='append',
+       type=str, metavar='PLAY_SEARCH',
+       help='Specify a single argument to the `nfldb.Query.play` method.')
+    aa('-r', '--player', default=[], action='append',
+       type=str, metavar='PLAYER_SEARCH',
+       help='Specify a single argument to the `nfldb.Query.player` method.')
+    aa('-s', '--sort', default=None, action='append', nargs=2,
+       metavar=('SORTBY', 'ORDER'),
+       help='Specify a sorting criteria. SORTBY must be a field in the play '
+            'or play_player tables. ORDER must be either desc for descending '
+            'or asc for ascending. If no sort criteria is specified, then '
+            'chronological order is used: `-s gsis_id asc -s time asc`.')
+    aa('-l', '--limit', default=0, type=int,
+       help='Specify a limit, which will restrict the number of plays '
+            'returned to at most the limit specified.')
+    aa('--verbose', action='store_true',
+       help='When set, the output of the video player will be redirected to '
+            'the stdout and stderr of this process.')
+    aa('--hide-marquee', action='store_true',
+       help='When set, there will be no text overlay on the footage '
+            'describing the game context or the play.')
+    args = parser.parse_args()
+
+    if not os.access(args.footage_play_dir, os.R_OK):
+        print('Could not access footage play directory %s'
+              % args.footage_play_dir, file=sys.stderr)
+        if not os.getenv('NFLVID_FOOTAGE_PLAY_DIR'):
+            print('Hint: Set your NFLVID_FOOTAGE_PLAY_DIR environment '
+                  'variable to your footage play directory.', file=sys.stderr)
+        sys.exit(1)
+    if args.current:
+        args.type = cur_type or 'Any'
+        if args.year is None:
+            args.year = cur_year
+        if args.week is None:
+            args.week = cur_week
+
+    q = Query(db)
+    q.game(season_year__ge=2011)  # No video before this point, unfortunately.
+    if args.year is not None and args.year > 0:
+        q.game(season_year=args.year)
+    if args.type != 'Any':
+        q.game(season_type=args.type)
+    if args.week is not None and args.week > 0:
+        q.game(week=args.week)
+    for group in ('game', 'drive', 'play', 'player'):
+        for c in getattr(args, group):
+            eval('q.%s(%s)' % (group, c))
+    if args.sort is None:
+        q.sort([('gsis_id', 'asc'), ('time', 'asc')])
+    else:
+        q.sort(map(tuple, args.sort))
+    if args.limit > 0:
+        q.limit(args.limit)
+
+    plays = q.as_plays()
+    if args.text:
+        for p in plays:
+            print(p.gsis_id, '%04d' % p.play_id, p.time, p.description)
+        sys.exit(0)
+
+    try:
+        nflvid.vlc.watch(db, plays, footage_play_dir=args.footage_play_dir,
+                         verbose=args.verbose, hide_marquee=args.hide_marquee)
+    except LookupError as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)

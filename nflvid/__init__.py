@@ -9,7 +9,8 @@ by me. This package therefore provides utilities to batch download NFL
 Game Footage from the original source.
 
 Once game footage is downloaded, you can use this library to search
-plays and construct a playlist to play in any video player.
+plays and construct a playlist to play in `vlc` with the `nflvid.vlc`
+submodule.
 """
 
 import gzip
@@ -345,7 +346,6 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
         return
 
     cmd = ['ffmpeg',
-           '-timeout', '60',
            '-i', url]
     if dry_run:
         cmd += ['-t', '30']
@@ -411,7 +411,7 @@ def _run_command(cmd):
                              stderr=subprocess.STDOUT)
         output = p.communicate()[0].strip()
 
-        if p.returncode > 0:
+        if p.returncode != 0:
             err = subprocess.CalledProcessError(p.returncode, cmd)
             err.output = output
             raise err
