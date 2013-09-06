@@ -85,7 +85,8 @@ if __name__ == '__main__':
             'describing the game context or the play.')
     args = parser.parse_args()
 
-    if not os.access(args.footage_play_dir, os.R_OK):
+    if not args.footage_play_dir \
+            or not os.access(args.footage_play_dir, os.R_OK):
         print('Could not access footage play directory %s'
               % args.footage_play_dir, file=sys.stderr)
         if not os.getenv('NFLVID_FOOTAGE_PLAY_DIR'):
