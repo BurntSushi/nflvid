@@ -9,8 +9,9 @@ In particular, this library provides routines to do the following:
   - Cut the game footage into pieces where each piece corresponds to a single 
     play.
 
-  - Provide a few API functions for accessing the file path of a particular
-    play by integration with [nflgame](https://github.com/BurntSushi/nflgame).
+  - With the [nflvid.vlc](http://pdoc.burntsushi.net/nflvid/vlc.m.html) and
+    the [nflvid-watch](https://github.com/BurntSushi/nflvid/blob/master/scripts/nflvid-watch) script, you can search for plays and watch video of them right from your
+    command line. (XXX: Insert link to wiki page for HOWTO.)
 
 The methods used in this library rely heavily on the open availability of data 
 that could be shut off at any time. More to the point, the content that this 

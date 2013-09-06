@@ -5,11 +5,17 @@ import os.path as path
 cwd = path.dirname(__file__)
 longdesc = codecs.open(path.join(cwd, 'longdesc.rst'), 'r', 'utf-8').read()
 
+version = '0.0.0'
+with codecs.open(path.join(cwd, 'nflvid/version.py'), 'r', 'ascii') as f:
+    exec(f.read())
+    version = __version__
+assert version != '0.0.0'
+
 setup(
     name='nflvid',
     author='Andrew Gallant',
     author_email='nflvid@burntsushi.net',
-    version='0.0.14',
+    version=version,
     license='WTFPL',
     description='A simple library to download, slice and search NFL game '
                 'footage on a play-by-play basis.',
@@ -29,11 +35,11 @@ setup(
     ],
     platforms='ANY',
     packages=['nflvid'],
-    package_dir={'nflvid': 'nflvid'},
     package_data={'nflvid': ['schedule-status', 'pbp-xml/*.xml.gz']},
     data_files=[('share/doc/nflvid', ['README.md', 'longdesc.rst',
                                       'COPYING', 'INSTALL']),
                 ('share/doc/nflvid/doc', ['doc/nflvid/index.html'])],
     install_requires=['httplib2', 'eventlet', 'beautifulsoup4', 'nflgame'],
-    scripts=['scripts/nflvid-footage', 'scripts/nflvid-slice']
+    scripts=['scripts/nflvid-footage', 'scripts/nflvid-slice',
+             'scripts/nflvid-watch']
 )

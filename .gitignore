@@ -1,6 +1,7 @@
 .*.swp
 *.pyc
 MANIFEST
+doc
 build
 dist
 schedule-ne

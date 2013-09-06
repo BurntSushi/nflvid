@@ -9,8 +9,8 @@ by me. This package therefore provides utilities to batch download NFL
 Game Footage from the original source.
 
 Once game footage is downloaded, you can use this library to search
-plays and construct a playlist to play in `vlc` with the `nflvid.vlc`
-submodule.
+plays and construct a playlist to play in `vlc` with the
+[nflvid.vlc](http://pdoc.burntsushi.net/nflvid/vlc.m.html) submodule.
 """
 
 import gzip
