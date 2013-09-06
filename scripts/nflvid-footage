@@ -97,11 +97,14 @@ for (season, season_type, week, home, away), info in nflgame.schedule.games:
         continue
 
     g = nflgame.game.Game(info['eid'])
+    if g is None:
+        continue
     if not args.show_url and not args.progress and not args.files \
             and nflvid.footage_full(args.footage_dir, g.eid) is not None:
         continue
 
     matched.append(nflgame.game.Game(info['eid']))
+matched = filter(lambda g: g is not None, matched)
 
 if len(matched) == 0:
     fatal('No games matched your search criteria.')
