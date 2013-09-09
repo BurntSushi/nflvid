@@ -660,7 +660,7 @@ def _xml_plays(data, coach=True):
     # For broadcast timings, we need to subtract the offset given from
     # the play start timings.
     try:
-        boffset = int(soup.find('dataset').get('offset', 0))
+        boffset = int(soup.find('dataset').get('offset', 0)) + 2
     except ValueError:
         boffset = 0
 
