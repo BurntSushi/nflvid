@@ -247,10 +247,11 @@ def slice(footage_play_dir, full_footage_file, gobj, coach=True,
                 % (gobj, _nice_game(gobj)))
         return
 
+    max_dur = 0 if coach else 25
     pool = eventlet.greenpool.GreenPool(threads)
     for p in unsliced:
         pool.spawn_n(slice_play, footage_play_dir, full_footage_file, gobj, p,
-                     0, True)
+                     max_dur, coach)
     pool.waitall()
 
     _eprint('DONE slicing game %s %s' % (gobj.eid, _nice_game(gobj)))
@@ -654,11 +655,19 @@ def _xml_plays(data, coach=True):
     """
     if data is None:
         return None
+    soup = bs4.BeautifulSoup(data)
+
+    # For broadcast timings, we need to subtract the offset given from
+    # the play start timings.
+    try:
+        boffset = int(soup.find('dataset').get('offset', 0))
+    except ValueError:
+        boffset = 0
 
     # Load everything into a list first, since we need to look ahead to see
     # the next play's start time to compute the current play's duration.
     rows = []
-    for row in bs4.BeautifulSoup(data).find_all('row'):
+    for row in soup.find_all('row'):
         playid = row.find('id')
         if not playid:
             playid = row.get('playid', None)
@@ -674,7 +683,10 @@ def _xml_plays(data, coach=True):
             start = row.find('archivetcin')
         if not start:
             continue
+
         start = PlayTime(start.get_text().strip())
+        if not coach:
+            start = start.add_seconds(-boffset)
 
         # If this start doesn't procede the last start time, skip it.
         if len(rows) > 0 and start < rows[-1][1]:
