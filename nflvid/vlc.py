@@ -46,6 +46,7 @@ watching all plays that are either third or fourth down attempts:
 
 from __future__ import absolute_import, division, print_function
 import os
+import os.path
 import re
 import subprocess
 import tempfile
@@ -155,6 +156,7 @@ def make_xspf(db, play_paths):
     escape = xml.sax.saxutils.escape
     tracks = []
     for i, (play, path) in enumerate(play_paths, 1):
+        path = os.path.realpath(path)
         context = str(_games[play.gsis_id])
         context += '\n' + _strip_time(play.description)
         situation = str(play.time)
