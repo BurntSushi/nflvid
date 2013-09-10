@@ -414,7 +414,7 @@ def download_coach(footage_dir, gobj, dry_run=False):
            '--rtmp', server,
            '--app', app,
            '--playpath', path,
-           '--timeout', '60',
+           '--timeout', '10',
            ]
     if dry_run:
         cmd += ['--stop', '30']
@@ -428,7 +428,24 @@ def download_coach(footage_dir, gobj, dry_run=False):
     elif not status:
         _eprint('FAILED to download game %s %s' % (gobj.eid, _nice_game(gobj)))
     else:
-        _eprint('DONE with game %s %s' % (gobj.eid, _nice_game(gobj)))
+        fp_size = 0
+        try:
+            fp_size = os.stat(fp).st_size
+        except OSError:
+            pass
+        except AttributeError:
+            pass
+        if fp_size > 0:
+            _eprint('DONE with game %s %s' % (gobj.eid, _nice_game(gobj)))
+        else:
+            _eprint('FAILED to download game %s %s'
+                    % (gobj.eid, _nice_game(gobj)))
+            _eprint('No data retrieved. Maybe coach footage does not exist '
+                    'yet?')
+            try:
+                os.remove(fp)
+            except OSError:
+                pass
 
 
 def _run_command(cmd):
