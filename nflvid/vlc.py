@@ -39,6 +39,39 @@ watching all plays that are either third or fourth down attempts:
 
     # Play it in VLC.
     nflvid.vlc.watch(db, plays.as_plays())
+
+Sometimes nfldb's query interface isn't expressive enough to return
+exactly what we want. For example, we might want to look at all of
+Calvin Johnson's receptions in the 2012 season that ended within the
+opponent's 5 yard line without scoring. We can use nfldb to retrieve
+all of Johnson's non-scoring receptions, and then use a loop to filter
+those down to exactly what we want to see. We do this because nfldb
+does not have data on where plays end.
+
+    #!python
+    from nfldb import connect, FieldPosition, Query
+    import nflvid.vlc
+
+    db = connect()
+    q = Query(db)
+
+    # Specify all of CJ's non-scoring receptions in the 2012 regular season.
+    q.game(season_year=2012, season_type='Regular')
+    q.player(full_name="Calvin Johnson")
+    q.play(receiving_rec=1, receiving_tds=0)
+
+    # inside takes a field position and a statistical category, and returns a
+    # predicate. The predicate takes a play and returns true if and only if
+    # that play ends inside the field position determined by adding the statistical
+    # category to the start of the play. (i.e., play yardline + receiving yards
+    # determines the field position where CJ was tackled.)
+    def inside(field, stat):
+        cutoff = FieldPosition.from_str(field)
+        return lambda play: play.yardline.add_yards(getattr(play, stat)) >= cutoff
+    watch = filter(inside('OPP 5', 'receiving_yds'), q.as_plays())
+
+    # Watch the plays!
+    nflvid.vlc.watch(db, watch, '/m/nfl/coach/pbp')
 '''
 # This module uses auto-updating marquees by exploiting the XSPF play
 # list format to inject meta data for each play. See the `xspf_track`
