@@ -1,11 +1,12 @@
 '''
 This submodule exposes a couple of convenience functions for opening a
-sequence of plays with `vlc`.
+sequence of plays with `vlc`. In order to use this submodule, you must
+have [nfldb](https://github.com/BurntSushi/nfldb) installed.
 
-This module is for picky users where just running
-`vlc play1.mp4 play2.mp4 ...` isn't enough. Namely, this module instructs
-vlc to write a text marquee for each play describing the current game
-situation and a textual description of the play.
+This module is for picky users where just running `vlc play1.mp4
+play2.mp4 ...` isn't enough. Namely, this module instructs vlc to write
+a text marquee for each play describing the current game situation and
+a textual description of the play.
 
 For most use cases, you will only need the `nflvid.vlc.watch` function.
 It can take the results of `nfldb.Query.as_plays`, and open `vlc`
