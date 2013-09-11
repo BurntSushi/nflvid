@@ -14,6 +14,7 @@ plays and construct a playlist to play in `vlc` with the
 """
 
 import gzip
+import json
 import math
 import os
 import os.path as path
@@ -247,11 +248,28 @@ def slice(footage_play_dir, full_footage_file, gobj, coach=True,
                 % (gobj, _nice_game(gobj)))
         return
 
+    # If this is broadcast footage, we need to find the offset of each play.
+    # My current estimate is that the offset is the difference between the
+    # the reported game end time and the actual game end time.
+    # (This only applies to broadcast footage. Coach footage is well behaved.)
+    offset = 0
+    if not coach:
+        reported = unsliced[0].game_end  # Any play will do.
+        actual = _video_duration(full_footage_file)
+        offset = reported.fractional() - actual.fractional()
+
+        # Add a little padding...
+        offset += 2
+
+        # Something has gone horribly wrong.
+        if offset < 0:
+            offset = 0
+
     max_dur = 0 if coach else 25
     pool = eventlet.greenpool.GreenPool(threads)
     for p in unsliced:
         pool.spawn_n(slice_play, footage_play_dir, full_footage_file, gobj, p,
-                     max_dur, coach)
+                     max_dur, coach, offset)
     pool.waitall()
 
     _eprint('DONE slicing game %s %s' % (gobj.eid, _nice_game(gobj)))
@@ -297,7 +315,7 @@ def artificial_slice(footage_play_dir, gobj, gobj_play):
 
 
 def slice_play(footage_play_dir, full_footage_file, gobj, play,
-               max_duration=0, cut_scoreboard=True):
+               max_duration=0, cut_scoreboard=True, offset=0):
     """
     This is just like `nflvid.slice`, but it only slices the play
     provided.  In typical cases, `nflvid.slice` should be used since it
@@ -315,6 +333,9 @@ def slice_play(footage_play_dir, full_footage_file, gobj, play,
 
     When `cut_scoreboard` is `True`, the first 3.0 seconds of the play
     will be clipped to remove the scoreboard view.
+
+    When `offset` is greater than `0`, it is subtracted from the start
+    time of `play` to get the actual start time used.
     """
     outdir = _play_path(footage_play_dir, gobj.eid)
     st = play.start
@@ -328,6 +349,7 @@ def slice_play(footage_play_dir, full_footage_file, gobj, play,
 
     if cut_scoreboard:
         st = st.add_seconds(3.0)
+    st = st.add_seconds(-offset)
 
     dr = PlayTime(seconds=et.fractional() - st.fractional())
 
@@ -471,7 +493,7 @@ def _run_command(cmd):
         _eprint("Could not run '%s' (errno: %d): %s"
                 % (' '.join(cmd), e.errno, e.strerror))
         return False
-    return True
+    return output or True
 
 
 def plays(gobj, coach=True):
@@ -534,7 +556,7 @@ class Play (object):
     broadcast footage.
     """
 
-    def __init__(self, start, end, playid):
+    def __init__(self, start, end, playid, game_end):
         self.start = start
         """
         Corresponds to the `ArchiveTCIN` or `CATIN` field in the source
@@ -553,6 +575,13 @@ class Play (object):
         """
         A numeric play identifier that serves as a foreign key from an
         `nflgame.game.Play` object to a `nflvid.Play` object.
+        """
+
+        self.game_end = game_end
+        """
+        Corresponds to the `endTime` of the broadcast footage for the
+        game that this play belongs to. It is used to compute a correct
+        offset of the start time for the play.
         """
 
     def idstr(self):
@@ -661,6 +690,22 @@ class PlayTime (object):
         return self.__point
 
 
+def _video_duration(fp):
+    """
+    Returns the duration of the entire video at file path `fp` as a
+    `nflvid.PlayTime` object.
+
+    If there was a problem using `ffprobe` to get the duration, `None`
+    is returned.
+    """
+    cmd = ['ffprobe', '-loglevel', 'error', '-show_format', fp,
+           '-print_format', 'json']
+    out = _run_command(cmd)
+    if not out:
+        return None
+    return PlayTime(seconds=float(json.loads(out)['format']['duration']))
+
+
 def _xml_plays(data, coach=True):
     """
     Parses the XML raw string `data` given into an ordered dictionary
@@ -669,17 +714,18 @@ def _xml_plays(data, coach=True):
     retrieved.
 
     The dictionary is keyed by play id.
+
+    A second return value, the ending time of the broadcast footage,
+    is also returned. (This is used to compute an offset between the
+    ArchiveTCIN time and when the play really starts.)
     """
     if data is None:
         return None
     soup = bs4.BeautifulSoup(data)
 
-    # For broadcast timings, we need to subtract the offset given from
-    # the play start timings.
-    try:
-        boffset = int(soup.find('dataset').get('offset', 0)) + 2
-    except ValueError:
-        boffset = 0
+    game_end_time = soup.find('dataset').get('endtime', None)
+    if game_end_time is not None:
+        game_end_time = PlayTime(game_end_time.strip())
 
     # Load everything into a list first, since we need to look ahead to see
     # the next play's start time to compute the current play's duration.
@@ -700,10 +746,7 @@ def _xml_plays(data, coach=True):
             start = row.find('archivetcin')
         if not start:
             continue
-
         start = PlayTime(start.get_text().strip())
-        if not coach:
-            start = start.add_seconds(-boffset)
 
         # If this start doesn't procede the last start time, skip it.
         if len(rows) > 0 and start < rows[-1][1]:
@@ -733,7 +776,7 @@ def _xml_plays(data, coach=True):
         end = None
         if i < len(rows) - 1:
             end = rows[i+1][1]
-        d[playid] = Play(start, end, playid)
+        d[playid] = Play(start, end, playid, game_end_time)
     return d
 
 
