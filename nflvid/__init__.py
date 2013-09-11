@@ -449,6 +449,10 @@ def download_coach(footage_dir, gobj, dry_run=False):
                 % (gobj.eid, _nice_game(gobj)))
     elif not status:
         _eprint('FAILED to download game %s %s' % (gobj.eid, _nice_game(gobj)))
+        try:
+            os.remove(fp)
+        except OSError:
+            pass
     else:
         fp_size = 0
         try:
