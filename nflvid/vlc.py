@@ -61,14 +61,15 @@ does not have data on where plays end.
     q.player(full_name="Calvin Johnson")
     q.play(receiving_rec=1, receiving_tds=0)
 
-    # inside takes a field position and a statistical category, and returns a
-    # predicate. The predicate takes a play and returns true if and only if
-    # that play ends inside the field position determined by adding the statistical
-    # category to the start of the play. (i.e., play yardline + receiving yards
-    # determines the field position where CJ was tackled.)
+    # inside takes a field position and a statistical category, and
+    # returns a predicate. The predicate takes a play and returns
+    # true if and only if that play ends inside the field position
+    # determined by adding the statistical category to the start of the
+    # play. (i.e., play yardline + receiving yards determines the field
+    # position where CJ was tackled.)
     def inside(field, stat):
         cutoff = FieldPosition.from_str(field)
-        return lambda play: play.yardline.add_yards(getattr(play, stat)) >= cutoff
+        return lambda play: play.yardline + getattr(play, stat) >= cutoff
     watch = filter(inside('OPP 5', 'receiving_yds'), q.as_plays())
 
     # Watch the plays!
