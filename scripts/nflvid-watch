@@ -9,7 +9,7 @@ from nfldb import connect, current, Query
 from nfldb import Clock, Enums, FieldPosition, PossessionTime
 Clock = Clock.from_str
 Field = FieldPosition.from_str
-PTime = PossessionTime.clock
+PTime = PossessionTime.from_str
 
 import nflvid
 import nflvid.vlc
