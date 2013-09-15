@@ -341,6 +341,7 @@ def slice_play(footage_play_dir, full_footage_file, gobj, play,
     st = play.start
     outpath = path.join(outdir, '%s.mp4' % play.idstr())
 
+    st = st.add_seconds(-offset)
     et = play.end
     if et is None:  # Probably the last play of the game.
         et = st.add_seconds(40)
@@ -349,7 +350,6 @@ def slice_play(footage_play_dir, full_footage_file, gobj, play,
 
     if cut_scoreboard:
         st = st.add_seconds(3.0)
-    st = st.add_seconds(-offset)
 
     dr = PlayTime(seconds=et.fractional() - st.fractional())
 
