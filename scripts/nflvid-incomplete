@@ -1,0 +1,76 @@
+#!/usr/bin/env python2
+
+import argparse
+import multiprocessing
+import os
+import sys
+
+import eventlet
+
+import nflgame
+import nflgame.game
+import nflgame.schedule
+import nflvid
+
+
+def eprint(s):
+    print >> sys.stderr, s
+
+
+def fatal(s):
+    eprint(s)
+    sys.exit(1)
+
+
+def expected_duration(game):
+    plays = nflvid.plays(game, coach=not args.broadcast)
+    if plays is None:
+        return None
+
+    playids = list(plays.keys())
+    if args.broadcast:
+        return plays[playids[0]].game_end
+    else:
+        # Heuristically add 10 seconds to account for length of last play.
+        return plays[playids[-1]].start.add_seconds(10)
+
+
+parser = argparse.ArgumentParser(
+    description='Find incomplete downloads of broadcast or coach footage.',
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+aa = parser.add_argument
+aa('game_files', type=str, nargs='+',
+   help='A list of full game footage files downloaded with nflvid-footage. '
+        'Each file must start with the game\'s eid so that its meta data '
+        'can be accessed. Files provided here will not be modified.')
+aa('--broadcast', action='store_true',
+   help='When set, footage durations for broadcast footage will be checked.')
+aa('--error', type=int, default=60,
+   help='If expected and actual game durations differ by more than the number '
+        'of seconds provided, then it will be flagged as incomplete.')
+args = parser.parse_args()
+
+# Get the corresponding game objects for each game file given.
+for gamef in args.game_files:
+    gameb = os.path.basename(gamef)
+    eid = gameb[0:10]
+    if eid not in nflgame.schedule.games_byid:
+        fatal('EID "%s" from game file "%s" is not valid.\n'
+              'Please make sure all game files start with their EID.'
+              % (eid, gameb))
+
+    dur = nflvid._video_duration(gamef)
+    if dur is None:
+        eprint('Could not get duration for "%s".' % gamef)
+        eprint('This probably means the video is corrupted because the '
+               'download did not finish.')
+        continue
+    expected = expected_duration(nflgame.game.Game(eid))
+    if expected is None:
+        eprint('Could not get expected duration for "%s".' % gamef)
+        continue
+
+    diff = abs(int(round(dur.fractional() - expected.fractional())))
+    if diff > args.error:
+        eprint('%s: Expected duration %s but it has %s.'
+               % (gamef, expected, dur))

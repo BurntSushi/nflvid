@@ -23,7 +23,7 @@ dev-install: docs longdesc.rst
 pep8:
 	pep8-python2 nflvid/*.py
 	pep8-python2 scripts/download-all-pbp-xml
-	pep8-python2 scripts/{nflvid-watch,nflvid-footage,nflvid-slice}
+	pep8-python2 scripts/{nflvid-watch,nflvid-footage,nflvid-slice,nflvid-incomplete}
 
 push:
 	git push origin master
