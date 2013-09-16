@@ -395,6 +395,7 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
         return
 
     cmd = ['ffmpeg',
+           '-timeout', 120,
            '-i', url]
     if dry_run:
         cmd += ['-t', '30']
