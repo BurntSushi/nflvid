@@ -31,6 +31,11 @@ import eventlet.green.subprocess as subprocess
 
 from nflgame import OrderedDict
 
+try:
+    strtype = basestring
+except NameError:  # I have lofty hopes for Python 3.
+    strtype = str
+
 __pdoc__ = {}
 
 __broadcast_cache = {}  # game eid -> play id -> Play
@@ -394,9 +399,10 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
         _eprint('FAILED to download game %s' % _nice_game(gobj))
         return
 
-    cmd = ['ffmpeg',
-           '-timeout', '120',
-           '-i', url]
+    cmd = ['ffmpeg']
+    if not _is_avconv():
+       cmd += ['-timeout', '120']
+    cmd += ['-i', url]
     if dry_run:
         cmd += ['-t', '30']
     cmd += ['-absf', 'aac_adtstoasc',  # no idea. ffmpeg says I need it though.
@@ -819,3 +825,10 @@ def _get_xml_data(eid=None, gamekey=None, fpath=None):
     except socket.timeout, e:
         _eprint(e)
     return None
+
+def _is_avconv():
+    """
+    Returns `True` if the `ffmpeg` binary is really `avconv`.
+    """
+    out = _run_command(['ffmpeg', '-version'])
+    return out and isinstance(out, strtype) and 'DEPRECATED' in out
