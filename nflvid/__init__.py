@@ -401,7 +401,7 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
 
     cmd = ['ffmpeg']
     if not _is_avconv():
-       cmd += ['-timeout', '120']
+        cmd += ['-timeout', '120']
     cmd += ['-i', url]
     if dry_run:
         cmd += ['-t', '30']
@@ -825,6 +825,7 @@ def _get_xml_data(eid=None, gamekey=None, fpath=None):
     except socket.timeout, e:
         _eprint(e)
     return None
+
 
 def _is_avconv():
     """
