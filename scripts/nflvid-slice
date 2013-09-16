@@ -1,11 +1,9 @@
 #!/usr/bin/env python2
 
 import argparse
-import multiprocessing
+import multiprocessing.pool
 import os
 import sys
-
-import eventlet
 
 import nflgame
 import nflgame.game
@@ -128,10 +126,10 @@ if args.add_missing_plays:
         if len(unsliced) == 0:
             continue
 
-        pool = eventlet.greenpool.GreenPool(args.threads)
-        for p in unsliced:
-            pool.spawn_n(nflvid.artificial_slice, args.footage_play_dir, g, p)
-        pool.waitall()
+        pool = multiprocessing.pool.ThreadPool(args.threads)
+        def artslice(p):
+            nflvid.artificial_slice(args.footage_play_dir, g, p)
+        pool.map(artslice, unsliced)
 
         eprint('DONE artificially slicing game %s %s'
                % (g.eid, nflvid._nice_game(g)))

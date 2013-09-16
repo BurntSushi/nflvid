@@ -1,13 +1,11 @@
 #!/usr/bin/env python2
 
 import argparse
+import multiprocessing.pool
 import os.path
 import sys
 
-import eventlet
-import eventlet.green.subprocess
-
-httplib2 = eventlet.import_patched('httplib2')
+import httplib2
 http = httplib2.Http()
 
 import nflgame
@@ -150,12 +148,11 @@ else:
         sys.exit(1)
 
 # Okay, we've warned the user enough. Let's start downloading.
-pool = eventlet.greenpool.GreenPool(args.threads)
-for g in matched:
+pool = multiprocessing.pool.ThreadPool(args.threads)
+def dodown(g):
     if args.broadcast:
-        pool.spawn_n(nflvid.download_broadcast,
-                     args.footage_dir, g, args.quality, args.dry_run)
+        nflvid.download_broadcast(args.footage_dir, g,
+                                  args.quality, args.dry_run)
     else:
-        pool.spawn_n(nflvid.download_coach,
-                     args.footage_dir, g, args.dry_run)
-pool.waitall()
+        nflvid.download_coach(args.footage_dir, g, args.dry_run)
+pool.map(dodown, matched)

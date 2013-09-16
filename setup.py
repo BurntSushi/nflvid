@@ -2,6 +2,12 @@ import codecs
 from distutils.core import setup
 import os.path as path
 
+install_requires = ['httplib2', 'beautifulsoup4', 'nflgame']
+try:
+    import argparse
+except ImportError:
+    install_requires.append('argparse')
+
 cwd = path.dirname(__file__)
 longdesc = codecs.open(path.join(cwd, 'longdesc.rst'), 'r', 'utf-8').read()
 
@@ -39,7 +45,7 @@ setup(
     data_files=[('share/doc/nflvid', ['README.md', 'longdesc.rst',
                                       'COPYING', 'INSTALL']),
                 ('share/doc/nflvid/doc', ['doc/nflvid/index.html'])],
-    install_requires=['httplib2', 'eventlet', 'beautifulsoup4', 'nflgame'],
+    install_requires=install_requires,
     scripts=['scripts/nflvid-footage', 'scripts/nflvid-slice',
              'scripts/nflvid-watch', 'scripts/nflvid-incomplete']
 )

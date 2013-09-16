@@ -16,18 +16,18 @@ plays and construct a playlist to play in `vlc` with the
 import gzip
 import json
 import math
+import multiprocessing.pool
 import os
 import os.path as path
 import socket
+import subprocess
 import sys
 import tempfile
 import urllib2
 
-import bs4
+import httplib2
 
-import eventlet
-_httplib2 = eventlet.import_patched('httplib2')
-import eventlet.green.subprocess as subprocess
+import bs4
 
 from nflgame import OrderedDict
 
@@ -87,7 +87,7 @@ def broadcast_url_status(url):
     broadcast URL should be considered valid if and only if its HTTP
     status is `200`.
     """
-    resp, _ = _httplib2.Http().request(url, 'HEAD')
+    resp, _ = httplib2.Http().request(url, 'HEAD')
     return resp['status']
 
 
@@ -212,7 +212,7 @@ def unsliced_plays(footage_play_dir, gobj, coach=True, dry_run=False):
 
 
 def slice(footage_play_dir, full_footage_file, gobj, coach=True,
-          threads=4, dry_run=False):
+          num_parallel=4, dry_run=False):
     """
     Uses `ffmpeg` to slice the given footage file into play-by-play
     pieces.  The `full_footage_file` should be a path to a full
@@ -226,10 +226,11 @@ def slice(footage_play_dir, full_footage_file, gobj, coach=True,
     This function will not duplicate work. If a video file exists for
     a particular play, then slice will not regenerate it.
 
-    Note that this function uses an `eventlet` green pool to run
-    multiple `ffmpeg` instances simultaneously. The maximum number
-    of threads to use is specified by `threads`. This function only
-    terminates when all threads have finished processing.
+    Note that this function uses a `multiprocessing` pool to run
+    multiple `ffmpeg` instances simultaneously. The maximum number of
+    simultaneously executing `ffmpeg` commands to use is specified by
+    `num_parallel`. This function only terminates when all `ffmpeg`
+    commands have finished processing.
 
     If `coach` is `False`, then play timings for broadcast footage will
     be used instead of coach timings.
@@ -271,11 +272,12 @@ def slice(footage_play_dir, full_footage_file, gobj, coach=True,
             offset = 0
 
     max_dur = 0 if coach else 25
-    pool = eventlet.greenpool.GreenPool(threads)
-    for p in unsliced:
-        pool.spawn_n(slice_play, footage_play_dir, full_footage_file, gobj, p,
-                     max_dur, coach, offset)
-    pool.waitall()
+    pool = multiprocessing.pool.ThreadPool(num_parallel)
+
+    def doslice(p):
+        slice_play(footage_play_dir, full_footage_file, gobj, p,
+                   max_dur, coach, offset)
+    pool.map(doslice, unsliced)
 
     _eprint('DONE slicing game %s %s' % (gobj.eid, _nice_game(gobj)))
 
