@@ -105,18 +105,13 @@ expected duration of a game with its actual duration. For example, after trying
 to download broadcast video of week 2 of the 2013 regular season, I ran this 
 command:
 
-
-```bash
-[andrew@Liger nflvid] nflvid-incomplete --broadcast /m/nfl/broadcast/tmp/*.mp4
-```
+    [andrew@Liger nflvid] nflvid-incomplete --broadcast /m/nfl/broadcast/tmp/*.mp4
 
 And the output was:
 
-```bash
-/m/nfl/broadcast/tmp/2013091505.mp4: Expected duration 02:49:10:14 but it has 00:59:40:030.
-/m/nfl/broadcast/tmp/2013091506.mp4: Expected duration 02:22:58:98 but it has 00:31:10:019.
-/m/nfl/broadcast/tmp/2013091511.mp4: Expected duration 02:27:04:96 but it has 00:41:19:427.
-```
+    /m/nfl/broadcast/tmp/2013091505.mp4: Expected duration 02:49:10:14 but it has 00:59:40:030.
+    /m/nfl/broadcast/tmp/2013091506.mp4: Expected duration 02:22:58:98 but it has 00:31:10:019.
+    /m/nfl/broadcast/tmp/2013091511.mp4: Expected duration 02:27:04:96 but it has 00:41:19:427.
 
 So I ran `rm /m/nfl/broadcast/tmp/20130915{05,06,11}.mp4` and restarted the 
 download command from last night. It will automatically retry the downloads for 
