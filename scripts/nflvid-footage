@@ -35,7 +35,7 @@ parser = argparse.ArgumentParser(
 aa = parser.add_argument
 aa('footage_dir', type=str,
    help='The directory containing your footage data. All footage will be '
-        'saved as "{footage_dir}/{eid}-{gamekey}.mp4".')
+        'saved as "{footage_dir}/{eid}.mp4".')
 aa('--threads', default=2, type=int,
    help='The number of concurrent ffmpeg/rtmpdump instances to run.'
         'When using --broadcast, try setting this to twice the number '

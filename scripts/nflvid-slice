@@ -51,7 +51,7 @@ aa = parser.add_argument
 aa('footage_play_dir', type=str,
    help='The play footage directory to store chopped play-by-play video. '
         'Play by play videos will be named '
-        '"{footage_play_dir}/{eid}-{gamkey}/{playid}.mp4".')
+        '"{footage_play_dir}/{eid}/{playid}.mp4".')
 aa('game_files', type=str, nargs='+',
    help='A list of full game footage files downloaded with nflvid-footage. '
         'Each file must start with the game\'s eid so that its meta data '
