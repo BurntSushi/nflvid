@@ -41,5 +41,5 @@ setup(
                 ('share/doc/nflvid/doc', ['doc/nflvid/index.html'])],
     install_requires=['httplib2', 'eventlet', 'beautifulsoup4', 'nflgame'],
     scripts=['scripts/nflvid-footage', 'scripts/nflvid-slice',
-             'scripts/nflvid-watch']
+             'scripts/nflvid-watch', 'scripts/nflvid-incomplete']
 )
