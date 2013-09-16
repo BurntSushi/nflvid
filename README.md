@@ -56,7 +56,6 @@ install `nflvid`.
 
 * [nflgame](https://pypi.python.org/pypi/nflgame)
 * [httplib2](https://pypi.python.org/pypi/httplib2)
-* [eventlet](https://pypi.python.org/pypi/eventlet)
 * [beautifulsoup4](https://pypi.python.org/pypi/beautifulsoup4)
 
 Additionally, the following programs are used to facilitate the downloading and 
