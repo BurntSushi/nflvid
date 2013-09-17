@@ -81,11 +81,11 @@ def broadcast_urls(gobj, quality='1600'):
     ]
 
 
-def broadcast_url_status(url):
+def url_status(url):
     """
-    Returns the HTTP status as a string for the given broadcast URL. A
-    broadcast URL should be considered valid if and only if its HTTP
-    status is `200`.
+    Returns the HTTP status as a string for the given URL. A broadcast
+    URL should be considered valid if and only if its HTTP status is
+    `200`.
     """
     resp, _ = httplib2.Http().request(url, 'HEAD')
     return resp['status']
@@ -97,7 +97,7 @@ def first_valid_broadcast_url(urls):
     valid broadcast URL, then `None` is returned.
     """
     for url in urls:
-        if broadcast_url_status(url) == '200':
+        if url_status(url) == '200':
             return url
     return None
 
