@@ -782,10 +782,6 @@ def _xml_plays(data, coach=True):
         if not start:
             continue
         start = PlayTime(start.get_text().strip())
-
-        # If this start doesn't procede the last start time, skip it.
-        if len(rows) > 0 and start < rows[-1][1]:
-            continue
         rows.append((playid, start, row))
 
     # A predicate for determining whether to ignore a row or not in our final
