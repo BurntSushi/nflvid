@@ -86,7 +86,12 @@ def broadcast_urls(gobj, quality='1600', condensed=False):
         % (year, month, day, gobj.gamekey, stype, gobj.gamekey,
            gobj.away.lower(), gobj.home.lower(), gobj.season(), kind,
            i, quality)
-        for i in range(1, 4)
+        for i in range(3, 0, -1)
+        # We count down here because higher numbers seem to take precedent.
+        # For example, the DEN @ NYG game in week 2 of 2013 regular season
+        # game. Using `1` links to valid footage that is only ~40 minutes
+        # long. The real stream uses `2`.
+        # I have no idea if this is a general rule or not.
     ]
 
 
