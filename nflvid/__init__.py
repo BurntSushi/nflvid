@@ -51,7 +51,7 @@ _coach_url = (
     'mp4:u/nfl/nfl/coachtapes/%s/%s_all_1600',
 )
 _broadcast_url = 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
-                 '%s/%s/%s/%s/2_%s_%s_%s_%s_h_whole_%d_%s.mp4.m3u8'
+                 '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_whole_%d_%s.mp4.m3u8'
 
 
 def _eprint(s):
@@ -61,7 +61,7 @@ def _eprint(s):
 def broadcast_urls(gobj, quality='1600'):
     """
     Returns possible HTTP Live Stream URLs (an m3u8 file) for the given
-    game and quality. Use `nflvid.broadcast_url_status` to determine
+    game and quality. Use `nflvid.url_status` to determine
     if it's a valid URL or not. Alternatively, use
     `nflvid.first_valid_broadcast_url` to retrieve the first valid URL.
 
@@ -72,10 +72,16 @@ def broadcast_urls(gobj, quality='1600'):
     Note that it is unlikely any URL returned will be valid for
     preseason or postseason games.
     """
-    month, day = gobj.eid[4:6], gobj.eid[6:8]
+    year, month, day = gobj.eid[0:4], gobj.eid[4:6], gobj.eid[6:8]
+    if gobj.schedule['season_type'] == 'POST':
+        stype = 3
+    elif gobj.schedule['season_type'] == 'PRE':
+        stype = 1
+    else:
+        stype = 2
     return [
         _broadcast_url
-        % (gobj.season(), month, day, gobj.gamekey, gobj.gamekey,
+        % (year, month, day, gobj.gamekey, stype, gobj.gamekey,
            gobj.away.lower(), gobj.home.lower(), gobj.season(), i, quality)
         for i in range(1, 4)
     ]
