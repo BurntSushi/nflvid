@@ -56,6 +56,8 @@ if __name__ == '__main__':
        help='Alias for `--game "season_type={TYPE}"`.')
     aa('-w', '--week', type=int, default=None,
        help='Alias for `--game "week={WEEK}"`. Set to `0` to disable.')
+    aa('-n', '--name', type=str, default=None,
+       help='Alias for `--player "full_name={NAME}"`.')
     aa('-g', '--game', default=[], action='append',
        type=str, metavar='GAME_SEARCH',
        help='Specify a single argument to the `nfldb.Query.game` method.')
@@ -108,6 +110,8 @@ if __name__ == '__main__':
         q.game(season_type=args.type)
     if args.week is not None and args.week > 0:
         q.game(week=args.week)
+    if args.name is not None and len(args.name) > 0:
+        q.player(full_name=args.name)
     for group in ('game', 'drive', 'play', 'player'):
         for c in getattr(args, group):
             eval('q.%s(%s)' % (group, c))
