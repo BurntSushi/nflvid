@@ -51,14 +51,14 @@ _coach_url = (
     'mp4:u/nfl/nfl/coachtapes/%s/%s_all_1600',
 )
 _broadcast_url = 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
-                 '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_whole_%d_%s.mp4.m3u8'
+                 '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%d_%s.mp4.m3u8'
 
 
 def _eprint(s):
     print >> sys.stderr, s
 
 
-def broadcast_urls(gobj, quality='1600'):
+def broadcast_urls(gobj, quality='1600', condensed=False):
     """
     Returns possible HTTP Live Stream URLs (an m3u8 file) for the given
     game and quality. Use `nflvid.url_status` to determine
@@ -79,10 +79,13 @@ def broadcast_urls(gobj, quality='1600'):
         stype = 1
     else:
         stype = 2
+
+    kind = 'snap2w' if condensed else 'whole'
     return [
         _broadcast_url
         % (year, month, day, gobj.gamekey, stype, gobj.gamekey,
-           gobj.away.lower(), gobj.home.lower(), gobj.season(), i, quality)
+           gobj.away.lower(), gobj.home.lower(), gobj.season(), kind,
+           i, quality)
         for i in range(1, 4)
     ]
 
@@ -379,7 +382,8 @@ def artificial_slice(footage_play_dir, gobj, gobj_play):
         _run_command(cmd)
 
 
-def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
+def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False,
+                       condensed=False):
     """
     Starts an `ffmpeg` process to download the full broadcast of the
     given game with the quality provided. The qualities available are:
@@ -394,12 +398,19 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False):
 
     A full game's worth of broadcast footage at a quality of 1600 is
     about **2GB**.
+
+    If `dry_run` is `True`, then only the first 30 seconds of the game
+    will be downloaded. Use this to quickly make sure everything is
+    working correctly.
+
+    If `condensed` is `True`, then a small recap of the game will be
+    downloaded instead.
     """
     fp = _full_path(footage_dir, gobj.eid)
     if os.access(fp, os.R_OK):
         raise LookupError('Footage path "%s" already exists.' % fp)
 
-    urls = broadcast_urls(gobj, quality)
+    urls = broadcast_urls(gobj, quality, condensed=condensed)
     url = first_valid_broadcast_url(urls)
     if url is None:
         _eprint('BAD URLs for game %s: %s'

@@ -59,6 +59,9 @@ aa('--files', action='store_true',
 aa('--broadcast', action='store_true',
    help='When set, broadcast footage will be downloaded in lieu of coach '
         'footage. This is EXPERIMENTAL.')
+aa('--condensed', action='store_true',
+   help='When set, condensed broadcast footage will be downloaded. '
+        'This is EXPERIMENTAL.')
 aa('--quality', default='1600',
    choices=['400', '800', '1200', '1600', '2400', '3000', '4500'],
    help='The video/audio quality to use for broadcast footage. '
@@ -75,6 +78,8 @@ aa('--no-confirm', action='store_true',
    help='When set, confirmation will be skipped.')
 args = parser.parse_args()
 
+if args.condensed:
+    args.broadcast = True
 if args.show_url:
     args.broadcast = True
 if args.threads < 1:
@@ -122,7 +127,7 @@ if args.progress:
     sys.exit(0)
 if args.show_url:
     for g in matched:
-        urls = nflvid.broadcast_urls(g, args.quality)
+        urls = nflvid.broadcast_urls(g, args.quality, condensed=args.condensed)
         print nflvid._nice_game(g)
         if args.show_dead:
             url = nflvid.first_valid_broadcast_url(urls)
@@ -152,7 +157,8 @@ pool = multiprocessing.pool.ThreadPool(args.threads)
 def dodown(g):
     if args.broadcast:
         nflvid.download_broadcast(args.footage_dir, g,
-                                  args.quality, args.dry_run)
+                                  args.quality, args.dry_run,
+                                  condensed=args.condensed)
     else:
         nflvid.download_coach(args.footage_dir, g, args.dry_run)
 pool.map(dodown, matched)
