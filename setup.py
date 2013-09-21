@@ -43,7 +43,7 @@ setup(
     packages=['nflvid'],
     package_data={'nflvid': ['schedule-status', 'pbp-xml/*.xml.gz']},
     data_files=[('share/doc/nflvid', ['README.md', 'longdesc.rst',
-                                      'COPYING', 'INSTALL']),
+                                      'UNLICENSE']),
                 ('share/doc/nflvid/doc', ['doc/nflvid/index.html'])],
     install_requires=install_requires,
     scripts=['scripts/nflvid-footage', 'scripts/nflvid-slice',
