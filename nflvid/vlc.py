@@ -85,6 +85,7 @@ import os.path
 import re
 import subprocess
 import tempfile
+import urllib
 import xml.sax.saxutils
 
 import nfldb
@@ -184,6 +185,12 @@ def make_xspf(db, play_paths):
     `db` should be a psycopg2 database connection returned from
     `nfldb.connect`. It is used to build meta data for games.
     """
+    def path_encode(p):
+        p = urllib.pathname2url(os.path.realpath(p))
+        if not p.startswith('/'):
+            p = '/' + p
+        return p
+
     if len(_games) == 0:
         for game in nfldb.Query(db).as_games():
             _games[game.gsis_id] = game
@@ -191,7 +198,7 @@ def make_xspf(db, play_paths):
     escape = xml.sax.saxutils.escape
     tracks = []
     for i, (play, path) in enumerate(play_paths, 1):
-        path = os.path.realpath(path)
+        path = path_encode(path)
         context = str(_games[play.gsis_id])
         context += '\n' + _strip_time(play.description)
         situation = str(play.time)
