@@ -127,6 +127,7 @@ if args.add_missing_plays:
             continue
 
         pool = multiprocessing.pool.ThreadPool(args.threads)
+
         def artslice(p):
             nflvid.artificial_slice(args.footage_play_dir, g, p)
         pool.map(artslice, unsliced)

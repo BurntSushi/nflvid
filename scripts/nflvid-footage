@@ -152,8 +152,8 @@ else:
     if not confirm.lower().startswith('y'):
         sys.exit(1)
 
+
 # Okay, we've warned the user enough. Let's start downloading.
-pool = multiprocessing.pool.ThreadPool(args.threads)
 def dodown(g):
     if args.broadcast:
         nflvid.download_broadcast(args.footage_dir, g,
@@ -161,4 +161,5 @@ def dodown(g):
                                   condensed=args.condensed)
     else:
         nflvid.download_coach(args.footage_dir, g, args.dry_run)
+pool = multiprocessing.pool.ThreadPool(args.threads)
 pool.map(dodown, matched)
