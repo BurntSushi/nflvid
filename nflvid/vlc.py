@@ -99,9 +99,9 @@ A cache of games that is filled on the first call to
 """
 
 
-marquee = '--sub-filter "marq{marquee=\$d,size=18}' \
-          ':marq{marquee=\$n/%d,size=18,position=9}' \
-          ':marq{marquee=\$b,size=18,position=10}"'
+marquee = 'marq{marquee=$d,size=18}' \
+          ':marq{marquee=$n/%d,size=18,position=9}' \
+          ':marq{marquee=$b,size=18,position=10}'
 """The marquee command to pass to `vlc`."""
 
 
@@ -242,11 +242,11 @@ def watch(db, plays, footage_play_dir=None, verbose=False, hide_marquee=False):
             'No video of plays found matching the criteria given.')
 
     if hide_marquee:
-        cmd = 'vlc ' + (' '.join(x[1] for x in play_paths))
+        cmd = ['vlc'] + [x[1] for x in play_paths]
     else:
         playlist = make_xspf(db, play_paths)
-        cmd = 'vlc %s %s' % (marquee % len(play_paths), playlist)
+        cmd = ['vlc', '--sub-filter', marquee % len(play_paths), playlist]
 
-    subprocess.check_call(cmd, shell=True, stdout=out, stderr=out)
+    subprocess.check_call(cmd, stdout=out, stderr=out)
     if not hide_marquee:
         os.unlink(playlist)
