@@ -87,14 +87,16 @@ if __name__ == '__main__':
             'describing the game context or the play.')
     args = parser.parse_args()
 
-    if not args.footage_play_dir \
-            or not os.access(args.footage_play_dir, os.R_OK):
-        print('Could not access footage play directory %s'
-              % args.footage_play_dir, file=sys.stderr)
-        if not os.getenv('NFLVID_FOOTAGE_PLAY_DIR'):
-            print('Hint: Set your NFLVID_FOOTAGE_PLAY_DIR environment '
-                  'variable to your footage play directory.', file=sys.stderr)
-        sys.exit(1)
+    if not args.text:
+        if not args.footage_play_dir \
+                or not os.access(args.footage_play_dir, os.R_OK):
+            print('Could not access footage play directory %s'
+                  % args.footage_play_dir, file=sys.stderr)
+            if not os.getenv('NFLVID_FOOTAGE_PLAY_DIR'):
+                print('Hint: Set your NFLVID_FOOTAGE_PLAY_DIR environment '
+                      'variable to your footage play directory.',
+                      file=sys.stderr)
+            sys.exit(1)
     if args.current:
         args.type = cur_type or 'Any'
         if args.year is None:
