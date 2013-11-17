@@ -51,7 +51,7 @@ _coach_url = (
     'mp4:u/nfl/nfl/coachtapes/%s/%s_all_1600',
 )
 _broadcast_url = 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
-                 '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%d_%s.mp4.m3u8'
+                 '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8'
 
 
 def _eprint(s):
@@ -86,7 +86,7 @@ def broadcast_urls(gobj, quality='1600', condensed=False):
         % (year, month, day, gobj.gamekey, stype, gobj.gamekey,
            gobj.away.lower(), gobj.home.lower(), gobj.season(), kind,
            i, quality)
-        for i in range(3, 0, -1)
+        for i in ['3', '2', '1', '4a']
         # We count down here because higher numbers seem to take precedent.
         # For example, the DEN @ NYG game in week 2 of 2013 regular season
         # game. Using `1` links to valid footage that is only ~40 minutes
