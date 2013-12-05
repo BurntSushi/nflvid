@@ -47,6 +47,8 @@ installed with `pip`:
 
     pip2 install nflvid
 
+Note that `nflvid` requires Python 2.6 or Python 2.7. It is not compatible with
+Python 3.
 
 ## Dependencies
 
