@@ -184,8 +184,9 @@ def _play_path(footage_play_dir, eid):
 
 
 def _nice_game(gobj):
+    gstr = '%s at %s' % (gobj.away, gobj.home)
     return '(Season: %s, Week: %s, %s)' \
-           % (gobj.schedule['year'], gobj.schedule['week'], gobj)
+           % (gobj.schedule['year'], gobj.schedule['week'], gstr)
 
 
 def unsliced_plays(footage_play_dir, gobj, coach=True, dry_run=False):
@@ -262,10 +263,10 @@ def slice(footage_play_dir, full_footage_file, gobj, coach=True,
         # plays on disk.
         if not footage_plays(footage_play_dir, gobj.eid):
             _eprint(
-                'There are no unsliced plays remaining for game %s %s.\n'
+                'There are no unsliced plays remaining for game %s.\n'
                 'If they have not been sliced yet, then the XML play-by-play '
                 'meta data may not be available or is corrupt.'
-                % (gobj, _nice_game(gobj)))
+                % _nice_game(gobj))
         return
 
     # If this is broadcast footage, we need to find the offset of each play.
