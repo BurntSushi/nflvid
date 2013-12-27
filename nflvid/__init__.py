@@ -86,7 +86,7 @@ def broadcast_urls(gobj, quality='1600', condensed=False):
         % (year, month, day, gobj.gamekey, stype, gobj.gamekey,
            gobj.away.lower(), gobj.home.lower(), gobj.season(), kind,
            i, quality)
-        for i in ['3', '2', '1', '4a']
+        for i in ['3', '2', '1a', '1', '4a', '4']
         # We count down here because higher numbers seem to take precedent.
         # For example, the DEN @ NYG game in week 2 of 2013 regular season
         # game. Using `1` links to valid footage that is only ~40 minutes
