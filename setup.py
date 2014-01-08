@@ -2,7 +2,8 @@ import codecs
 from distutils.core import setup
 import os.path as path
 
-install_requires = ['httplib2', 'beautifulsoup4', 'nflgame']
+install_requires = ['httplib2', 'beautifulsoup4',
+                    'nflgame>=1.2.1', 'nfldb>=0.1.0']
 try:
     import argparse
 except ImportError:
