@@ -3,12 +3,11 @@
 import os
 import sys
 
-import nflgame.game
-import nflgame.schedule
+import nflgame
 import nflvid
 
-for eid in sorted(nflgame.schedule.games_byid):
-    info = nflgame.schedule.games_byid[eid]
+for eid in sorted(nflgame.sched.games):
+    info = nflgame.sched.games[eid]
     g = nflgame.game.Game(info['eid'])
     nice = '(%s, %s)' % (g.eid, g.gamekey)
 

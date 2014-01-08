@@ -9,7 +9,6 @@ import httplib2
 http = httplib2.Http()
 
 import nflgame
-import nflgame.schedule
 import nflvid
 
 
@@ -88,8 +87,10 @@ if args.teams is not None:
     args.teams = set(map(str.upper, args.teams))
 
 matched = []
-for (season, season_type, week, home, away), info in nflgame.schedule.games:
-    teams = (home, away)
+for info in nflgame.sched.games.itervalues():
+    season, season_type = info['year'], info['season_type']
+    week = info['week']
+    teams = (info['home'], info['away'])
     if args.season != season:
         continue
     if args.season_type != season_type:
