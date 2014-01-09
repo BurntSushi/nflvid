@@ -37,7 +37,7 @@ aa('--threads', default=2, type=int,
    help='The number of concurrent ffmpeg/rtmpdump instances to run.'
         'When using --broadcast, try setting this to twice the number '
         'of logical CPUs in your machine.')
-aa('--season', default=2013, type=int, choices=[2011, 2012, 2013],
+aa('--season', default=2013, type=int, choices=[2011, 2012, 2013, 2014],
    help='The season to download video from.')
 aa('--weeks', default=None, type=int, nargs='+',
    help='The weeks to download video from.')
