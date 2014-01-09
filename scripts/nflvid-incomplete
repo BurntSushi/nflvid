@@ -5,8 +5,6 @@ import os
 import sys
 
 import nflgame
-import nflgame.game
-import nflgame.schedule
 import nflvid
 
 
@@ -51,7 +49,7 @@ args = parser.parse_args()
 for gamef in args.game_files:
     gameb = os.path.basename(gamef)
     eid = gameb[0:10]
-    if eid not in nflgame.schedule.games_byid:
+    if eid not in nflgame.sched.games:
         fatal('EID "%s" from game file "%s" is not valid.\n'
               'Please make sure all game files start with their EID.'
               % (eid, gameb))
