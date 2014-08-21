@@ -42,7 +42,11 @@ __broadcast_cache = {}  # game eid -> play id -> Play
 __coach_cache = {}  # game eid -> play id -> Play
 
 _xmlf = path.join(path.split(__file__)[0], 'pbp-xml', '%s.xml.gz')
-_xml_base_url = 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml'
+_xml_base_urls = {
+    'default': 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml',
+    '2014': 'http://neulionms-a.akamaihd.net/fs/nfl/nfl/edl/' \
+            'nflgr/%d/%s.xml',
+}
 _coach_url = 'rtmp://neulionms.fcod.llnwd.net/a5306/e1/mp4:' \
              'u/nfl/nfl/coachtapes/%s/%s_all_1600'
 _coach_url = (
@@ -50,8 +54,12 @@ _coach_url = (
     'a5306/e1',
     'mp4:u/nfl/nfl/coachtapes/%s/%s_all_1600',
 )
-_broadcast_url = 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
-                 '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8'
+_broadcast_urls = {
+    'default': 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
+               '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
+    '2014': 'http://nlds84.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
+               '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
+}
 
 
 def _eprint(s):
@@ -80,9 +88,10 @@ def broadcast_urls(gobj, quality='1600', condensed=False):
     else:
         stype = 2
 
+    url = _broadcast_urls.get(year, _broadcast_urls['default'])
     kind = 'snap2w' if condensed else 'whole'
     return [
-        _broadcast_url
+        url
         % (year, month, day, gobj.gamekey, stype, gobj.gamekey,
            gobj.away.lower(), gobj.home.lower(), gobj.season(), kind,
            i, quality)
@@ -338,14 +347,16 @@ def slice_play(footage_play_dir, full_footage_file, gobj, play,
 
     start_time = '%02d:%02d:%02d.%d' % (st.hh, st.mm, st.ss, st.milli)
     duration = '%02d:%02d:%02d.%d' % (dr.hh, dr.mm, dr.ss, dr.milli)
-    cmd = ['ffmpeg',
-           '-ss', start_time,
-           '-i', full_footage_file,
-           '-acodec', 'copy',
-           '-vcodec', 'copy',
-           '-t', duration,
-           outpath,
-           ]
+    cmd = [
+        'ffmpeg',
+        '-ss', start_time,
+        '-i', full_footage_file,
+        '-acodec', 'copy',
+        '-vcodec', 'copy',
+         '-absf', 'aac_adtstoasc',  # no idea. ffmpeg says I need it though.
+        '-t', duration,
+        outpath,
+    ]
     _run_command(cmd)
 
 
@@ -430,11 +441,12 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False,
     cmd += ['-i', url]
     if dry_run:
         cmd += ['-t', '30']
-    cmd += ['-absf', 'aac_adtstoasc',  # no idea. ffmpeg says I need it though.
-            '-acodec', 'copy',
-            '-vcodec', 'copy',
-            fp,
-            ]
+    cmd += [
+        '-absf', 'aac_adtstoasc',  # no idea. ffmpeg says I need it though.
+        '-acodec', 'copy',
+        '-vcodec', 'copy',
+        fp,
+    ]
 
     _eprint('Downloading game %s %s' % (gobj.eid, _nice_game(gobj)))
     if not _run_command(cmd):
@@ -834,17 +846,19 @@ def _get_xml_data(eid=None, gamekey=None, fpath=None):
     fpath = _xmlf % eid
     if os.access(fpath, os.R_OK):
         return gzip.open(fpath).read()
+
+    year = int(eid[0:4])
+    month = int(eid[4:6])
+    if month <= 3:
+        year -= 1
+    base = _xml_base_urls.get(str(year), _xml_base_urls['default'])
+    u = base % (year, gamekey)  # The year and the game key.
     try:
-        year = int(eid[0:4])
-        month = int(eid[4:6])
-        if month <= 3:
-            year -= 1
-        u = _xml_base_url % (year, gamekey)  # The year and the game key.
         return urllib2.urlopen(u, timeout=10).read()
     except urllib2.HTTPError, e:
-        _eprint(e)
+        _eprint('%s (%s)' % (e, u))
     except socket.timeout, e:
-        _eprint(e)
+        _eprint('%s (%s)' % (e, u))
     return None
 
 
