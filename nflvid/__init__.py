@@ -19,10 +19,13 @@ import math
 import multiprocessing.pool
 import os
 import os.path as path
+import signal
 import socket
 import subprocess
 import sys
 import tempfile
+import threading
+import time
 import urllib2
 
 import httplib2
@@ -58,6 +61,8 @@ _broadcast_urls = {
     'default': 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
                '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
     '2014': 'http://nlds84.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
+               '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
+    '2011': 'http://nlds53.cdnl3nl.neulion.com/nlds_vod_now/nfl/vod/' \
                '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
 }
 
@@ -95,7 +100,7 @@ def broadcast_urls(gobj, quality='1600', condensed=False):
         % (year, month, day, gobj.gamekey, stype, gobj.gamekey,
            gobj.away.lower(), gobj.home.lower(), gobj.season(), kind,
            i, quality)
-        for i in ['3', '2', '1a', '1', '4a', '4']
+        for i in ['3', '2', '1a', '1', '4a', '4', '9']
         # We count down here because higher numbers seem to take precedent.
         # For example, the DEN @ NYG game in week 2 of 2013 regular season
         # game. Using `1` links to valid footage that is only ~40 minutes
@@ -110,7 +115,10 @@ def url_status(url):
     URL should be considered valid if and only if its HTTP status is
     `200`.
     """
-    resp, _ = httplib2.Http().request(url, 'HEAD')
+    try:
+        resp, _ = httplib2.Http(timeout=10).request(url, 'HEAD')
+    except socket.timeout:
+        return '404'
     return resp['status']
 
 
@@ -449,7 +457,7 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False,
     ]
 
     _eprint('Downloading game %s %s' % (gobj.eid, _nice_game(gobj)))
-    if not _run_command(cmd):
+    if not _run_command(cmd, monitor_file=fp):
         _eprint('FAILED to download game %s' % _nice_game(gobj))
     else:
         _eprint('DONE with game %s %s' % (gobj.eid, _nice_game(gobj)))
@@ -518,11 +526,49 @@ def download_coach(footage_dir, gobj, dry_run=False):
                 pass
 
 
-def _run_command(cmd):
+def _file_monitor(pid, f, stop, timeout=60):
+    '''
+    Given a path to a file `f` and a `pid` of a process writing to that
+    file, this will repeatedly check whether a file is increasing in
+    size. If it doesn't increase in size after `timeout` seconds, then
+    `SIGKILL` is sent to `pid`.
+
+    `stop` must be a `threading.Event`. When it is set, this monitor
+    will quit.
+    '''
+    last_size = None
+    while True:
+        if stop.is_set():
+            break
+        try:
+            size = os.stat(f).st_size
+        except OSError:
+            size = 0
+        if size == last_size:
+            _eprint('Download for "%s" has not made progress in %d seconds.\n'
+                    'Killing the download process %d.\n'
+                    '(Tip: Use `nflvid-incomplete` to find incomplete game '
+                    'downloads.)'
+                    % (f, timeout, pid))
+            os.kill(pid, signal.SIGKILL)
+            break
+        last_size = size
+        time.sleep(timeout)
+
+
+def _run_command(cmd, monitor_file=None):
+    monitor, stop = None, None
     try:
         p = subprocess.Popen(cmd,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
+        if monitor_file is not None:
+            stop = threading.Event()
+            monitor = threading.Thread(target=_file_monitor,
+                                       args=(p.pid, monitor_file, stop))
+            monitor.daemon = True  # Don't hold up the program on exit.
+            monitor.start()
+
         output = p.communicate()[0].strip()
 
         if p.returncode != 0:
@@ -541,6 +587,10 @@ def _run_command(cmd):
         _eprint("Could not run '%s' (errno: %d): %s"
                 % (' '.join(cmd), e.errno, e.strerror))
         return False
+    finally:
+        if monitor is not None:
+            stop.set()
+            # No need to wait...
     return output or True
 
 
