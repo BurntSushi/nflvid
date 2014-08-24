@@ -101,7 +101,7 @@ for info in nflgame.sched.games.itervalues():
         continue
 
     g = nflgame.game.Game(info['eid'])
-    if g is None:
+    if g is None or not g.game_over():
         continue
     if not args.show_url and not args.progress and not args.files \
             and nflvid.footage_full(args.footage_dir, g.eid) is not None:
