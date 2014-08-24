@@ -526,7 +526,7 @@ def download_coach(footage_dir, gobj, dry_run=False):
                 pass
 
 
-def _file_monitor(pid, f, stop, timeout=60):
+def _file_monitor(pid, f, stop, timeout=90):
     '''
     Given a path to a file `f` and a `pid` of a process writing to that
     file, this will repeatedly check whether a file is increasing in
