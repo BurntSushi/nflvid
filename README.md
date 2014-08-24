@@ -50,6 +50,7 @@ installed with `pip`:
 Note that `nflvid` requires Python 2.6 or Python 2.7. It is not compatible with
 Python 3.
 
+
 ## Dependencies
 
 `nflvid` depends on the following third-party Python packages, which are all 
@@ -101,7 +102,7 @@ the output of `nflvid-footage`. It will tell you if a download is incomplete.
 If so, delete the video and re-run the command. **The program will not 
 re-download footage that is already on disk!**
 
-You can also try using the `nflvid-incomplete` command, which will compared the 
+You can also try using the `nflvid-incomplete` command, which will compare the 
 expected duration of a game with its actual duration. For example, after trying
 to download broadcast video of week 2 of the 2013 regular season, I ran this 
 command:
@@ -117,6 +118,12 @@ And the output was:
 So I ran `rm /m/nfl/broadcast/tmp/20130915{05,06,11}.mp4` and restarted the 
 download command from last night. It will automatically retry the downloads for 
 the games I just deleted.
+
+**Tip**: This process can now be mostly automated with a shell script like 
+[nflvid-broadcast-download](https://gist.github.com/anonymous/bd039a7c040c1544b87c). 
+It will continue to try to download footage to the current directory. Now that 
+`nflvid-footage` has a built in watch dog that kills `ffmpeg` processes that 
+are not making progress, it is easier to automatically retry footage downloads.
 
 Once you've downloaded some games, you can now try slicing the footage into 
 plays. The following command will put the sliced plays into 
