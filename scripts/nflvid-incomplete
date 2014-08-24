@@ -68,8 +68,8 @@ for gamef in args.game_files:
     expected = expected_duration(nflgame.game.Game(eid))
     if expected is None:
         eprint('Could not get expected duration for "%s".' % gamef)
-        if args.quiet:
-            print(gamef)
+        # Don't print the game id out as incomplete because we just don't
+        # know if it is or not.
         continue
 
     diff = abs(int(round(dur.fractional() - expected.fractional())))
