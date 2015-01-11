@@ -11,6 +11,7 @@ Clock = Clock.from_str
 Field = FieldPosition.from_str
 PTime = PossessionTime.from_str
 
+import nflgame
 import nflvid
 import nflvid.vlc
 
@@ -85,6 +86,8 @@ if __name__ == '__main__':
     aa('--hide-marquee', action='store_true',
        help='When set, there will be no text overlay on the footage '
             'describing the game context or the play.')
+    aa('--fetch-missing', action='store_true',
+       help='When set, nflvid-watch will attempt to fetch any missing plays.')
     args = parser.parse_args()
 
     if not args.text:
@@ -129,6 +132,20 @@ if __name__ == '__main__':
         for p in plays:
             print(p.gsis_id, '%04d' % p.play_id, p.time, p.description)
         sys.exit(0)
+
+    if args.fetch_missing:
+        for db_play in plays:
+            db_game = db_play.drive.game
+            mapping = {
+                'Postseason': 'POST',
+                'Preseason': 'PRE',
+                'Regular': 'REG',
+            }
+            game = nflgame.one(
+                db_game.season_year, week=db_game.week, home=db_game.home_team,
+                away=db_game.away_team, kind=mapping[db_game.season_type.name])
+            nflvid.fetch_single_slice(
+                args.footage_play_dir, game, db_play.play_id)
 
     try:
         nflvid.vlc.watch(db, plays, footage_play_dir=args.footage_play_dir,
