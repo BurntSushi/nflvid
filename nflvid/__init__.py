@@ -407,6 +407,31 @@ def artificial_slice(footage_play_dir, gobj, gobj_play):
         _run_command(cmd)
 
 
+def fetch_single_slice(footage_play_dir, gobj, play_id):
+    play = plays(gobj)[str(play_id)]
+    outdir = _play_path(footage_play_dir, gobj.eid)
+    outpath = os.path.join(outdir, '%s.mp4' % play.idstr())
+    if os.access(outpath, os.R_OK):
+        _eprint('Found play %d from game %s %s' % (
+            play_id, gobj.eid, _nice_game(gobj)))
+        return
+    _eprint('Downloading play %d from game %s %s' % (
+        play_id, gobj.eid, _nice_game(gobj)))
+    cmd = get_base_coach_rtmpdump_cmd(gobj)
+    cmd += ['--start', str(play.start.seconds())]
+    cmd += ['--stop', str(play.end.seconds())]
+    if not os.access(outdir, os.R_OK):
+        os.makedirs(outdir)
+    cmd += ['-o', outpath]
+    try:
+        _run_command(cmd)
+    except:
+        _eprint('FAILED to download play %d from game %s %s' % (
+            play_id, gobj.eid, _nice_game(gobj)))
+        os.remove(outpath)
+        raise
+
+
 def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False,
                        condensed=False):
     """
@@ -463,6 +488,17 @@ def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False,
         _eprint('DONE with game %s %s' % (gobj.eid, _nice_game(gobj)))
 
 
+def get_base_coach_rtmpdump_cmd(gobj):
+    server, app, path = coach_url(gobj)
+
+    return ['rtmpdump',
+           '--rtmp', server,
+           '--app', app,
+           '--playpath', path,
+           '--timeout', '10',
+           ]
+
+
 def download_coach(footage_dir, gobj, dry_run=False):
     """
     Starts an `rtmpdump` process to download the full coach footage of
@@ -482,14 +518,7 @@ def download_coach(footage_dir, gobj, dry_run=False):
     if os.access(fp, os.R_OK):
         raise LookupError('Footage path "%s" already exists.' % fp)
 
-    server, app, path = coach_url(gobj)
-
-    cmd = ['rtmpdump',
-           '--rtmp', server,
-           '--app', app,
-           '--playpath', path,
-           '--timeout', '10',
-           ]
+    cmd = get_base_coach_rtmpdump_cmd(gobj)
     if dry_run:
         cmd += ['--stop', '30']
     cmd += ['-o', fp]
