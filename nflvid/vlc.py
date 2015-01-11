@@ -172,6 +172,10 @@ def plays_and_paths(plays, footage_play_dir=None):
         path = _play_path(footage_play_dir, play)
         if path is not None:
             al.append((play, path))
+        else:
+            print('Missing play %d from game %s' % (
+                play.play_id, play.gsis_id))
+
     return al
 
 
