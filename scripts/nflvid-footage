@@ -25,7 +25,6 @@ def is_dead(url):
     resp, _ = http.request(url, 'HEAD')
     return resp['status'] != '200'
 
-
 parser = argparse.ArgumentParser(
     description='Download NFL game footage.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -37,7 +36,8 @@ aa('--threads', default=2, type=int,
    help='The number of concurrent ffmpeg/rtmpdump instances to run.'
         'When using --broadcast, try setting this to twice the number '
         'of logical CPUs in your machine.')
-aa('--season', default=2013, type=int, choices=[2011, 2012, 2013, 2014],
+
+aa('--season', default=2015, type=int, choices=[2011, 2012, 2013, 2014, 2015],
    help='The season to download video from.')
 aa('--weeks', default=None, type=int, nargs='+',
    help='The weeks to download video from.')
