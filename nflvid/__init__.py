@@ -46,9 +46,12 @@ __coach_cache = {}  # game eid -> play id -> Play
 
 _xmlf = path.join(path.split(__file__)[0], 'pbp-xml', '%s.xml.gz')
 _xml_base_urls = {
-    'default': 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml',
-    '2014': 'http://neulionms-a.akamaihd.net/fs/nfl/nfl/edl/' \
+    'default': 'http://neulionms-a.akamaihd.net/fs/nfl/nfl/edl/' \
             'nflgr/%d/%s.xml',
+    '2010': 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml',
+    '2011': 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml',
+    '2012': 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml',
+    '2013': 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml',
 }
 _coach_url = 'rtmp://neulionms.fcod.llnwd.net/a5306/e1/mp4:' \
              'u/nfl/nfl/coachtapes/%s/%s_all_1600'
@@ -58,11 +61,15 @@ _coach_url = (
     'mp4:u/nfl/nfl/coachtapes/%s/%s_all_1600',
 )
 _broadcast_urls = {
-    'default': 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
+    'default': 'http://nlds84.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
                '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
-    '2014': 'http://nlds84.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
+    '2010': 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
                '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
     '2011': 'http://nlds53.cdnl3nl.neulion.com/nlds_vod_now/nfl/vod/' \
+               '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
+    '2012': 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
+               '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
+    '2013': 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
                '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
 }
 
