@@ -1,0 +1,3416 @@
+<!doctype html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+
+    <title>nflvid API documentation</title>
+    <meta name="description" content="A simple library to download, slice and search NFL game footage on a
+play-by-play basis.
+
+This libra..." />
+
+  <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
+  
+  <style type="text/css">
+  
+* {
+  box-sizing: border-box;
+}
+/*! normalize.css v1.1.1 | MIT License | git.io/normalize */
+
+/* ==========================================================================
+   HTML5 display definitions
+   ========================================================================== */
+
+/**
+ * Correct `block` display not defined in IE 6/7/8/9 and Firefox 3.
+ */
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+nav,
+section,
+summary {
+    display: block;
+}
+
+/**
+ * Correct `inline-block` display not defined in IE 6/7/8/9 and Firefox 3.
+ */
+
+audio,
+canvas,
+video {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+}
+
+/**
+ * Prevent modern browsers from displaying `audio` without controls.
+ * Remove excess height in iOS 5 devices.
+ */
+
+audio:not([controls]) {
+    display: none;
+    height: 0;
+}
+
+/**
+ * Address styling not present in IE 7/8/9, Firefox 3, and Safari 4.
+ * Known issue: no IE 6 support.
+ */
+
+[hidden] {
+    display: none;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+/**
+ * 1. Prevent system color scheme's background color being used in Firefox, IE,
+ *    and Opera.
+ * 2. Prevent system color scheme's text color being used in Firefox, IE, and
+ *    Opera.
+ * 3. Correct text resizing oddly in IE 6/7 when body `font-size` is set using
+ *    `em` units.
+ * 4. Prevent iOS text size adjust after orientation change, without disabling
+ *    user zoom.
+ */
+
+html {
+    background: #fff; /* 1 */
+    color: #000; /* 2 */
+    font-size: 100%; /* 3 */
+    -webkit-text-size-adjust: 100%; /* 4 */
+    -ms-text-size-adjust: 100%; /* 4 */
+}
+
+/**
+ * Address `font-family` inconsistency between `textarea` and other form
+ * elements.
+ */
+
+html,
+button,
+input,
+select,
+textarea {
+    font-family: sans-serif;
+}
+
+/**
+ * Address margins handled incorrectly in IE 6/7.
+ */
+
+body {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Links
+   ========================================================================== */
+
+/**
+ * Address `outline` inconsistency between Chrome and other browsers.
+ */
+
+a:focus {
+    outline: thin dotted;
+}
+
+/**
+ * Improve readability when focused and also mouse hovered in all browsers.
+ */
+
+a:active,
+a:hover {
+    outline: 0;
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+/**
+ * Address font sizes and margins set differently in IE 6/7.
+ * Address font sizes within `section` and `article` in Firefox 4+, Safari 5,
+ * and Chrome.
+ */
+
+h1 {
+    font-size: 2em;
+    margin: 0.67em 0;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 0.83em 0;
+}
+
+h3 {
+    font-size: 1.17em;
+    margin: 1em 0;
+}
+
+h4 {
+    font-size: 1em;
+    margin: 1.33em 0;
+}
+
+h5 {
+    font-size: 0.83em;
+    margin: 1.67em 0;
+}
+
+h6 {
+    font-size: 0.67em;
+    margin: 2.33em 0;
+}
+
+/**
+ * Address styling not present in IE 7/8/9, Safari 5, and Chrome.
+ */
+
+abbr[title] {
+    border-bottom: 1px dotted;
+}
+
+/**
+ * Address style set to `bolder` in Firefox 3+, Safari 4/5, and Chrome.
+ */
+
+b,
+strong {
+    font-weight: bold;
+}
+
+blockquote {
+    margin: 1em 40px;
+}
+
+/**
+ * Address styling not present in Safari 5 and Chrome.
+ */
+
+dfn {
+    font-style: italic;
+}
+
+/**
+ * Address differences between Firefox and other browsers.
+ * Known issue: no IE 6/7 normalization.
+ */
+
+hr {
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    height: 0;
+}
+
+/**
+ * Address styling not present in IE 6/7/8/9.
+ */
+
+mark {
+    background: #ff0;
+    color: #000;
+}
+
+/**
+ * Address margins set differently in IE 6/7.
+ */
+
+p,
+pre {
+    margin: 1em 0;
+}
+
+/**
+ * Correct font family set oddly in IE 6, Safari 4/5, and Chrome.
+ */
+
+code,
+kbd,
+pre,
+samp {
+    font-family: monospace, serif;
+    _font-family: 'courier new', monospace;
+    font-size: 1em;
+}
+
+/**
+ * Improve readability of pre-formatted text in all browsers.
+ */
+
+pre {
+    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/**
+ * Address CSS quotes not supported in IE 6/7.
+ */
+
+q {
+    quotes: none;
+}
+
+/**
+ * Address `quotes` property not supported in Safari 4.
+ */
+
+q:before,
+q:after {
+    content: '';
+    content: none;
+}
+
+/**
+ * Address inconsistent and variable font size in all browsers.
+ */
+
+small {
+    font-size: 80%;
+}
+
+/**
+ * Prevent `sub` and `sup` affecting `line-height` in all browsers.
+ */
+
+sub,
+sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sup {
+    top: -0.5em;
+}
+
+sub {
+    bottom: -0.25em;
+}
+
+/* ==========================================================================
+   Lists
+   ========================================================================== */
+
+/**
+ * Address margins set differently in IE 6/7.
+ */
+
+dl,
+menu,
+ol,
+ul {
+    margin: 1em 0;
+}
+
+dd {
+    margin: 0 0 0 40px;
+}
+
+/**
+ * Address paddings set differently in IE 6/7.
+ */
+
+menu,
+ol,
+ul {
+    padding: 0 0 0 40px;
+}
+
+/**
+ * Correct list images handled incorrectly in IE 7.
+ */
+
+nav ul,
+nav ol {
+    list-style: none;
+    list-style-image: none;
+}
+
+/* ==========================================================================
+   Embedded content
+   ========================================================================== */
+
+/**
+ * 1. Remove border when inside `a` element in IE 6/7/8/9 and Firefox 3.
+ * 2. Improve image quality when scaled in IE 7.
+ */
+
+img {
+    border: 0; /* 1 */
+    -ms-interpolation-mode: bicubic; /* 2 */
+}
+
+/**
+ * Correct overflow displayed oddly in IE 9.
+ */
+
+svg:not(:root) {
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   Figures
+   ========================================================================== */
+
+/**
+ * Address margin not present in IE 6/7/8/9, Safari 5, and Opera 11.
+ */
+
+figure {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Forms
+   ========================================================================== */
+
+/**
+ * Correct margin displayed oddly in IE 6/7.
+ */
+
+form {
+    margin: 0;
+}
+
+/**
+ * Define consistent border, margin, and padding.
+ */
+
+fieldset {
+    border: 1px solid #c0c0c0;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em;
+}
+
+/**
+ * 1. Correct color not being inherited in IE 6/7/8/9.
+ * 2. Correct text not wrapping in Firefox 3.
+ * 3. Correct alignment displayed oddly in IE 6/7.
+ */
+
+legend {
+    border: 0; /* 1 */
+    padding: 0;
+    white-space: normal; /* 2 */
+    *margin-left: -7px; /* 3 */
+}
+
+/**
+ * 1. Correct font size not being inherited in all browsers.
+ * 2. Address margins set differently in IE 6/7, Firefox 3+, Safari 5,
+ *    and Chrome.
+ * 3. Improve appearance and consistency in all browsers.
+ */
+
+button,
+input,
+select,
+textarea {
+    font-size: 100%; /* 1 */
+    margin: 0; /* 2 */
+    vertical-align: baseline; /* 3 */
+    *vertical-align: middle; /* 3 */
+}
+
+/**
+ * Address Firefox 3+ setting `line-height` on `input` using `!important` in
+ * the UA stylesheet.
+ */
+
+button,
+input {
+    line-height: normal;
+}
+
+/**
+ * Address inconsistent `text-transform` inheritance for `button` and `select`.
+ * All other form control elements do not inherit `text-transform` values.
+ * Correct `button` style inheritance in Chrome, Safari 5+, and IE 6+.
+ * Correct `select` style inheritance in Firefox 4+ and Opera.
+ */
+
+button,
+select {
+    text-transform: none;
+}
+
+/**
+ * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`
+ *    and `video` controls.
+ * 2. Correct inability to style clickable `input` types in iOS.
+ * 3. Improve usability and consistency of cursor style between image-type
+ *    `input` and others.
+ * 4. Remove inner spacing in IE 7 without affecting normal text inputs.
+ *    Known issue: inner spacing remains in IE 6.
+ */
+
+button,
+html input[type="button"], /* 1 */
+input[type="reset"],
+input[type="submit"] {
+    -webkit-appearance: button; /* 2 */
+    cursor: pointer; /* 3 */
+    *overflow: visible;  /* 4 */
+}
+
+/**
+ * Re-set default cursor for disabled elements.
+ */
+
+button[disabled],
+html input[disabled] {
+    cursor: default;
+}
+
+/**
+ * 1. Address box sizing set to content-box in IE 8/9.
+ * 2. Remove excess padding in IE 8/9.
+ * 3. Remove excess padding in IE 7.
+ *    Known issue: excess padding remains in IE 6.
+ */
+
+input[type="checkbox"],
+input[type="radio"] {
+    box-sizing: border-box; /* 1 */
+    padding: 0; /* 2 */
+    *height: 13px; /* 3 */
+    *width: 13px; /* 3 */
+}
+
+/**
+ * 1. Address `appearance` set to `searchfield` in Safari 5 and Chrome.
+ * 2. Address `box-sizing` set to `border-box` in Safari 5 and Chrome
+ *    (include `-moz` to future-proof).
+ */
+
+input[type="search"] {
+    -webkit-appearance: textfield; /* 1 */
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box; /* 2 */
+    box-sizing: content-box;
+}
+
+/**
+ * Remove inner padding and search cancel button in Safari 5 and Chrome
+ * on OS X.
+ */
+
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+}
+
+/**
+ * Remove inner padding and border in Firefox 3+.
+ */
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+/**
+ * 1. Remove default vertical scrollbar in IE 6/7/8/9.
+ * 2. Improve readability and alignment in all browsers.
+ */
+
+textarea {
+    overflow: auto; /* 1 */
+    vertical-align: top; /* 2 */
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+/**
+ * Remove most spacing between table cells.
+ */
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+  </style>
+
+  <style type="text/css">
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  body {
+    background: #fff;
+    font-family: "Source Sans Pro", "Helvetica Neueue", Helvetica, sans;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 1.6em;
+  }
+  #content {
+    width: 70%;
+    max-width: 850px;
+    float: left;
+    padding: 30px 60px;
+    border-left: 1px solid #ddd;
+  }
+  #sidebar {
+    width: 25%;
+    float: left;
+    padding: 30px;
+    overflow: hidden;
+  }
+  #nav {
+    font-size: 130%;
+    margin: 0 0 15px 0;
+  }
+
+  #top {
+    display: block;
+    position: fixed;
+    bottom: 5px;
+    left: 5px;
+    font-size: .85em;
+    text-transform: uppercase;
+  }
+
+  #footer {
+    font-size: .75em;
+    padding: 5px 30px;
+    border-top: 1px solid #ddd;
+    text-align: right;
+  }
+    #footer p {
+      margin: 0 0 0 30px;
+      display: inline-block;
+    }
+
+  h1, h2, h3, h4, h5 {
+    font-weight: 300;
+  }
+  h1 {
+    font-size: 2.5em;
+    line-height: 1.1em;
+    margin: 0 0 .50em 0;
+  }
+
+  h2 {
+    font-size: 1.75em;
+    margin: 1em 0 .50em 0;
+  }
+
+  h3 {
+    margin: 25px 0 10px 0;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 105%;
+  }
+
+  a {
+    color: #058;
+    text-decoration: none;
+    transition: color .3s ease-in-out;
+  }
+
+  a:hover {
+    color: #e08524;
+    transition: color .3s ease-in-out;
+  }
+
+  pre, code, .mono, .name {
+    font-family: "Ubuntu Mono", "Cousine", "DejaVu Sans Mono", monospace;
+  }
+
+  .title .name {
+    font-weight: bold;
+  }
+  .section-title {
+    margin-top: 2em;
+  }
+  .ident {
+    color: #900;
+  }
+
+  code {
+    background: #f9f9f9;
+  } 
+
+  pre {
+    background: #fefefe;
+    border: 1px solid #ddd;
+    box-shadow: 2px 2px 0 #f3f3f3;
+    margin: 0 30px;
+    padding: 15px 30px;
+  }
+
+  .codehilite {
+    margin: 0 30px 10px 30px;
+  }
+
+    .codehilite pre {
+      margin: 0;
+    }
+    .codehilite .err { background: #ff3300; color: #fff !important; } 
+
+  table#module-list {
+    font-size: 110%;
+  }
+
+    table#module-list tr td:first-child {
+      padding-right: 10px;
+      white-space: nowrap;
+    }
+
+    table#module-list td {
+      vertical-align: top;
+      padding-bottom: 8px;
+    }
+
+      table#module-list td p {
+        margin: 0 0 7px 0;
+      }
+
+  .def {
+    display: table;
+  }
+
+    .def p {
+      display: table-cell;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .def p:first-child {
+      white-space: nowrap;
+    }
+
+    .def p:last-child {
+      width: 100%;
+    }
+
+
+  #index {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+    ul#index .class_name {
+      /* font-size: 110%; */
+      font-weight: bold;
+    }
+    #index ul {
+      margin: 0;
+    }
+
+  .item {
+    margin: 0 0 15px 0;
+  }
+
+    .item .class {
+      margin: 0 0 25px 30px;
+    }
+
+      .item .class ul.class_list {
+        margin: 0 0 20px 0;
+      }
+
+    .item .name {
+      background: #fafafa;
+      margin: 0;
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 3px;
+      display: inline-block;
+      min-width: 40%;
+    }
+      .item .name:hover {
+        background: #f6f6f6;
+      }
+
+    .item .empty_desc {
+      margin: 0 0 5px 0;
+      padding: 0;
+    }
+
+    .item .inheritance {
+      margin: 3px 0 0 30px;
+    }
+
+    .item .inherited {
+      color: #666;
+    }
+
+    .item .desc {
+      padding: 0 8px;
+      margin: 0;
+    }
+
+      .item .desc p {
+        margin: 0 0 10px 0;
+      }
+
+    .source_cont {
+      margin: 0;
+      padding: 0;
+    }
+
+    .source_link a {
+      background: #ffc300;
+      font-weight: 400;
+      font-size: .75em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 1px 1px 0 #f4b700;
+      
+      padding: 3px 8px;
+      border-radius: 2px;
+      transition: background .3s ease-in-out;
+    }
+      .source_link a:hover {
+        background: #FF7200;
+        text-shadow: none;
+        transition: background .3s ease-in-out;
+      }
+
+    .source {
+      display: none;
+      max-height: 600px;
+      overflow-y: scroll;
+      margin-bottom: 15px;
+    }
+
+      .source .codehilite {
+        margin: 0;
+      }
+
+  .desc h1, .desc h2, .desc h3 {
+    font-size: 100% !important;
+  }
+  .clear {
+    clear: both;
+  }
+
+  @media all and (max-width: 950px) {
+    #sidebar {
+      width: 35%;
+    }
+    #content {
+      width: 65%;
+    }
+  }
+  @media all and (max-width: 650px) {
+    #top {
+      display: none;
+    }
+    #sidebar {
+      float: none;
+      width: auto;
+    }
+    #content {
+      float: none;
+      width: auto;
+      padding: 30px;
+    }
+
+    #index ul {
+      padding: 0;
+      margin-bottom: 15px;
+    }
+    #index ul li {
+      display: inline-block;
+      margin-right: 30px;
+    }
+    #footer {
+      text-align: left;
+    }
+    #footer p {
+      display: block;
+      margin: inherit;
+    }
+  }
+
+  /*****************************/
+
+  </style>
+
+
+  <style type="text/css">
+  
+/* ==========================================================================
+   EXAMPLE Media Queries for Responsive Design.
+   These examples override the primary ('mobile first') styles.
+   Modify as content requires.
+   ========================================================================== */
+
+@media only screen and (min-width: 35em) {
+    /* Style adjustments for viewports that meet the condition */
+}
+
+@media print,
+       (-o-min-device-pixel-ratio: 5/4),
+       (-webkit-min-device-pixel-ratio: 1.25),
+       (min-resolution: 120dpi) {
+    /* Style adjustments for high resolution devices */
+}
+
+/* ==========================================================================
+   Print styles.
+   Inlined to avoid required HTTP connection: h5bp.com/r
+   ========================================================================== */
+
+@media print {
+    * {
+        background: transparent !important;
+        color: #000 !important; /* Black prints faster: h5bp.com/s */
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    a,
+    a:visited {
+        text-decoration: underline;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+
+    abbr[title]:after {
+        content: " (" attr(title) ")";
+    }
+
+    /*
+     * Don't show links for images, or javascript/internal links
+     */
+
+    .ir a:after,
+    a[href^="javascript:"]:after,
+    a[href^="#"]:after {
+        content: "";
+    }
+
+    pre,
+    blockquote {
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group; /* h5bp.com/t */
+    }
+
+    tr,
+    img {
+        page-break-inside: avoid;
+    }
+
+    img {
+        max-width: 100% !important;
+    }
+
+    @page {
+        margin: 0.5cm;
+    }
+
+    p,
+    h2,
+    h3 {
+        orphans: 3;
+        widows: 3;
+    }
+
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+}
+
+  </style>
+
+  <script type="text/javascript">
+  function toggle(id, $link) {
+    $node = document.getElementById(id);
+    if (!$node)
+    return;
+    if (!$node.style.display || $node.style.display == 'none') {
+    $node.style.display = 'block';
+    $link.innerHTML = 'Hide source &nequiv;';
+    } else {
+    $node.style.display = 'none';
+    $link.innerHTML = 'Show source &equiv;';
+    }
+  }
+  </script>
+</head>
+<body>
+<a href="#" id="top">Top</a>
+
+<div id="container">
+    
+  
+  <div id="sidebar">
+    <h1>Index</h1>
+    <ul id="index">
+
+    <li class="set"><h3><a href="#header-functions">Functions</a></h3>
+      
+  <ul>
+    <li class="mono"><a href="#nflvid.artificial_slice">artificial_slice</a></li>
+    <li class="mono"><a href="#nflvid.broadcast_urls">broadcast_urls</a></li>
+    <li class="mono"><a href="#nflvid.coach_url">coach_url</a></li>
+    <li class="mono"><a href="#nflvid.download_broadcast">download_broadcast</a></li>
+    <li class="mono"><a href="#nflvid.download_coach">download_coach</a></li>
+    <li class="mono"><a href="#nflvid.fetch_single_slice">fetch_single_slice</a></li>
+    <li class="mono"><a href="#nflvid.first_valid_broadcast_url">first_valid_broadcast_url</a></li>
+    <li class="mono"><a href="#nflvid.footage_full">footage_full</a></li>
+    <li class="mono"><a href="#nflvid.footage_play">footage_play</a></li>
+    <li class="mono"><a href="#nflvid.footage_plays">footage_plays</a></li>
+    <li class="mono"><a href="#nflvid.get_base_coach_rtmpdump_cmd">get_base_coach_rtmpdump_cmd</a></li>
+    <li class="mono"><a href="#nflvid.play">play</a></li>
+    <li class="mono"><a href="#nflvid.plays">plays</a></li>
+    <li class="mono"><a href="#nflvid.slice">slice</a></li>
+    <li class="mono"><a href="#nflvid.slice_play">slice_play</a></li>
+    <li class="mono"><a href="#nflvid.unsliced_plays">unsliced_plays</a></li>
+    <li class="mono"><a href="#nflvid.url_status">url_status</a></li>
+  </ul>
+
+    </li>
+
+    <li class="set"><h3><a href="#header-classes">Classes</a></h3>
+      <ul>
+        <li class="mono">
+        <span class="class_name"><a href="#nflvid.Play">Play</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#nflvid.Play.__init__">__init__</a></li>
+    <li class="mono"><a href="#nflvid.Play.idstr">idstr</a></li>
+  </ul>
+
+        </li>
+        <li class="mono">
+        <span class="class_name"><a href="#nflvid.PlayTime">PlayTime</a></span>
+        
+          
+  <ul>
+    <li class="mono"><a href="#nflvid.PlayTime.__init__">__init__</a></li>
+    <li class="mono"><a href="#nflvid.PlayTime.add_seconds">add_seconds</a></li>
+    <li class="mono"><a href="#nflvid.PlayTime.fractional">fractional</a></li>
+    <li class="mono"><a href="#nflvid.PlayTime.seconds">seconds</a></li>
+  </ul>
+
+        </li>
+      </ul>
+    </li>
+
+    <li class="set"><h3><a href="#header-submodules">Sub-modules</a></h3>
+      <ul>
+        <li class="mono"><a href="version.m.html">nflvid.version</a></li>
+        <li class="mono"><a href="vlc.m.html">nflvid.vlc</a></li>
+      </ul>
+    </li>
+    </ul>
+  </div>
+
+    <article id="content">
+      
+  
+
+  
+
+
+  <header id="section-intro">
+  <h1 class="title"><span class="name">nflvid</span> module</h1>
+  <p>A simple library to download, slice and search NFL game footage on a
+play-by-play basis.</p>
+<p>This library comes with preloaded play-by-play meta data, which
+describes the start time of each play in the game footage. However,
+the actual footage does not come with this library and is not released
+by me. This package therefore provides utilities to batch download NFL
+Game Footage from the original source.</p>
+<p>Once game footage is downloaded, you can use this library to search
+plays and construct a playlist to play in <code>vlc</code> with the
+<a href="http://pdoc.burntsushi.net/nflvid/vlc.m.html">nflvid.vlc</a> submodule.</p>
+  
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid" class="source">
+    <pre><code>"""
+A simple library to download, slice and search NFL game footage on a
+play-by-play basis.
+
+This library comes with preloaded play-by-play meta data, which
+describes the start time of each play in the game footage. However,
+the actual footage does not come with this library and is not released
+by me. This package therefore provides utilities to batch download NFL
+Game Footage from the original source.
+
+Once game footage is downloaded, you can use this library to search
+plays and construct a playlist to play in `vlc` with the
+[nflvid.vlc](http://pdoc.burntsushi.net/nflvid/vlc.m.html) submodule.
+"""
+
+import gzip
+import json
+import math
+import multiprocessing.pool
+import os
+import os.path as path
+import signal
+import socket
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+import urllib2
+
+import httplib2
+
+import bs4
+
+from nflgame import OrderedDict
+
+try:
+    strtype = basestring
+except NameError:  # I have lofty hopes for Python 3.
+    strtype = str
+
+__pdoc__ = {}
+
+__broadcast_cache = {}  # game eid -> play id -> Play
+__coach_cache = {}  # game eid -> play id -> Play
+
+_xmlf = path.join(path.split(__file__)[0], 'pbp-xml', '%s.xml.gz')
+_xml_base_urls = {
+    'default': 'http://neulionms-a.akamaihd.net/fs/nfl/nfl/edl/' \
+            'nflgr/%d/%s.xml',
+    '2010': 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml',
+    '2011': 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml',
+    '2012': 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml',
+    '2013': 'http://e2.cdnl3.neulion.com/nfl/edl/nflgr/%d/%s.xml',
+}
+_coach_url = 'rtmp://neulionms.fcod.llnwd.net/a5306/e1/mp4:' \
+             'u/nfl/nfl/coachtapes/%s/%s_all_1600'
+_coach_url = (
+    'rtmp://neulionms.fcod.llnwd.net',
+    'a5306/e1',
+    'mp4:u/nfl/nfl/coachtapes/%s/%s_all_1600',
+)
+_broadcast_urls = {
+    'default': 'http://nlds84.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
+               '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
+    '2010': 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
+               '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
+    '2011': 'http://nlds53.cdnl3nl.neulion.com/nlds_vod_now/nfl/vod/' \
+               '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
+    '2012': 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
+               '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
+    '2013': 'http://nlds82.cdnl3nl.neulion.com/nlds_vod/nfl/vod/' \
+               '%s/%s/%s/%s/%d_%s_%s_%s_%s_h_%s_%s_%s.mp4.m3u8',
+}
+
+
+def _eprint(s):
+    print >> sys.stderr, s
+
+
+def broadcast_urls(gobj, quality='1600', condensed=False):
+    """
+    Returns possible HTTP Live Stream URLs (an m3u8 file) for the given
+    game and quality. Use `nflvid.url_status` to determine
+    if it's a valid URL or not. Alternatively, use
+    `nflvid.first_valid_broadcast_url` to retrieve the first valid URL.
+
+    The kludge here is that the broadcast URLs can vary slightly and
+    unpredictably from game to game. I haven't discovered a reliable
+    means of accurately predicting which URL is correct.
+
+    Note that it is unlikely any URL returned will be valid for
+    preseason or postseason games.
+    """
+    year, month, day = gobj.eid[0:4], gobj.eid[4:6], gobj.eid[6:8]
+    if gobj.schedule['season_type'] == 'POST':
+        stype = 3
+    elif gobj.schedule['season_type'] == 'PRE':
+        stype = 1
+    else:
+        stype = 2
+
+    url = _broadcast_urls.get(year, _broadcast_urls['default'])
+    kind = 'snap2w' if condensed else 'whole'
+    return [
+        url
+        % (year, month, day, gobj.gamekey, stype, gobj.gamekey,
+           gobj.away.lower(), gobj.home.lower(), gobj.season(), kind,
+           i, quality)
+        for i in ['3', '2', '1a', '1', '4a', '4', '9']
+        # We count down here because higher numbers seem to take precedent.
+        # For example, the DEN @ NYG game in week 2 of 2013 regular season
+        # game. Using `1` links to valid footage that is only ~40 minutes
+        # long. The real stream uses `2`.
+        # I have no idea if this is a general rule or not.
+    ]
+
+
+def url_status(url):
+    """
+    Returns the HTTP status as a string for the given URL. A broadcast
+    URL should be considered valid if and only if its HTTP status is
+    `200`.
+    """
+    try:
+        resp, _ = httplib2.Http(timeout=10).request(url, 'HEAD')
+    except socket.timeout:
+        return '404'
+    return resp['status']
+
+
+def first_valid_broadcast_url(urls):
+    """
+    Returns the first valid broadcast URL in the list. If there is no
+    valid broadcast URL, then `None` is returned.
+    """
+    for url in urls:
+        if url_status(url) == '200':
+            return url
+    return None
+
+
+def coach_url(gobj):
+    """
+    Returns the rtmp URL as a triple for the coach footage of the given
+    game. The elements of the triple are:
+
+        (rtmp server, rtmp app name, rtmp playpath)
+
+    Coach video only comes in 1600 quality.
+    """
+    return (
+        _coach_url[0],
+        _coach_url[1],
+        _coach_url[2] % (gobj.season(), gobj.gamekey),
+    )
+
+
+def footage_full(footage_dir, eid):
+    """
+    Returns the path to the full video for a given game inside an
+    nflvid footage directory.
+
+    If the full footage doesn't exist, then None is returned.
+    """
+    fp = _full_path(footage_dir, eid)
+    if not os.access(fp, os.R_OK):
+        return None
+    return fp
+
+
+def footage_plays(footage_play_dir, eid):
+    """
+    Returns a list of all footage broken down by play inside an nflvid
+    footage directory. The list is sorted numerically by play id.
+
+    If no footage breakdown exists for the game provided, then an empty
+    list is returned.
+    """
+    fp = _play_path(footage_play_dir, eid)
+    if not os.access(fp, os.R_OK):
+        return []
+    return sorted(os.listdir(fp), key=lambda s: int(s[0:-4]))
+
+
+def footage_play(footage_play_dir, eid, playid, stat=True):
+    """
+    Returns a file path to an existing play slice in the footage play
+    directory for the game and play given.
+
+    If the file for the play is not readable, then `None` is returned.
+
+    If `stat` is `False`, then the file's access will not be checked.
+    """
+    gamedir = _play_path(footage_play_dir, eid)
+    fp = path.join(gamedir, '%04d.mp4' % int(playid))
+    if stat and not os.access(fp, os.R_OK):
+        return None
+    return fp
+
+
+def _full_path(footage_dir, eid):
+    return path.join(footage_dir, '%s.mp4' % eid)
+
+
+def _play_path(footage_play_dir, eid):
+    return path.join(footage_play_dir, '%s' % eid)
+
+
+def _nice_game(gobj):
+    gstr = '%s at %s' % (gobj.away, gobj.home)
+    return '(Season: %s, Week: %s, %s)' \
+           % (gobj.schedule['year'], gobj.schedule['week'], gstr)
+
+
+def unsliced_plays(footage_play_dir, gobj, coach=True, dry_run=False):
+    """
+    Scans the game directory inside footage_play_dir and returns a list
+    of plays that haven't been sliced yet. In particular, a play is
+    only considered sliced if the following file is readable, assuming
+    {playid} is its play id:
+
+        {footage_play_dir}/{eid}/{playid}.mp4
+
+    All plays for the game given that don't fit this criteria will be
+    returned in the list.
+
+    If the list is empty, then all plays for the game have been sliced.
+    Alternatively, `None` can be returned if there was a problem
+    retrieving the play-by-play meta data.
+
+    If `coach` is `False`, then play timings for broadcast footage will
+    be used instead of coach timings.
+
+    If `dry_run` is `True`, then only the first 10 plays of the game
+    are sliced.
+    """
+    ps = plays(gobj, coach)
+    outdir = _play_path(footage_play_dir, gobj.eid)
+
+    unsliced = []
+    if ps is None:
+        return None
+    for i, p in enumerate(ps.values()):
+        if dry_run and i >= 10:
+            break
+        pid = p.idstr()
+        if not os.access(path.join(outdir, '%s.mp4' % pid), os.R_OK):
+            unsliced.append(p)
+    return unsliced
+
+
+def slice(footage_play_dir, full_footage_file, gobj, coach=True,
+          num_parallel=4, dry_run=False):
+    """
+    Uses `ffmpeg` to slice the given footage file into play-by-play
+    pieces.  The `full_footage_file` should be a path to a full
+    game downloaded with `nflvid-footage` and `gobj` should be the
+    corresponding `nflgame.game.Game` object.
+
+    The `footage_play_dir` is where the pieces will be saved:
+
+        {footage_play_dir}/{eid}/{playid}.mp4
+
+    This function will not duplicate work. If a video file exists for
+    a particular play, then slice will not regenerate it.
+
+    Note that this function uses a `multiprocessing` pool to run
+    multiple `ffmpeg` instances simultaneously. The maximum number of
+    simultaneously executing `ffmpeg` commands to use is specified by
+    `num_parallel`. This function only terminates when all `ffmpeg`
+    commands have finished processing.
+
+    If `coach` is `False`, then play timings for broadcast footage will
+    be used instead of coach timings.
+
+    If `dry_run` is `True`, then only the first 10 plays of the game
+    are sliced.
+    """
+    outdir = _play_path(footage_play_dir, gobj.eid)
+    if not os.access(outdir, os.R_OK):
+        os.makedirs(outdir)
+
+    unsliced = unsliced_plays(footage_play_dir, gobj, coach, dry_run)
+    if unsliced is None or len(unsliced) == 0:
+        # Only show an annoying error message if there are no sliced
+        # plays on disk.
+        if not footage_plays(footage_play_dir, gobj.eid):
+            _eprint(
+                'There are no unsliced plays remaining for game %s.\n'
+                'If they have not been sliced yet, then the XML play-by-play '
+                'meta data may not be available or is corrupt.'
+                % _nice_game(gobj))
+        return
+
+    # If this is broadcast footage, we need to find the offset of each play.
+    # My current estimate is that the offset is the difference between the
+    # the reported game end time and the actual game end time.
+    # (This only applies to broadcast footage. Coach footage is well behaved.)
+    offset = 0
+    if not coach:
+        reported = unsliced[0].game_end  # Any play will do.
+        actual = _video_duration(full_footage_file)
+        offset = reported.fractional() - actual.fractional()
+
+        # Add a little padding...
+        offset += 2
+
+        # Something has gone horribly wrong.
+        if offset < 0:
+            offset = 0
+
+    max_dur = 0 if coach else 25
+    pool = multiprocessing.pool.ThreadPool(num_parallel)
+
+    def doslice(p):
+        slice_play(footage_play_dir, full_footage_file, gobj, p,
+                   max_dur, coach, offset)
+    pool.map(doslice, unsliced)
+
+    _eprint('DONE slicing game %s %s' % (gobj.eid, _nice_game(gobj)))
+
+
+def slice_play(footage_play_dir, full_footage_file, gobj, play,
+               max_duration=0, cut_scoreboard=True, offset=0):
+    """
+    This is just like `nflvid.slice`, but it only slices the play
+    provided.  In typical cases, `nflvid.slice` should be used since it
+    makes sure not to duplicate work.
+
+    This function will not check if the play-by-play directory for
+    `gobj` has been created.
+
+    `max_duration` is used to cap the length of a play. This
+    drastically cuts down on the storage requirements of a game at the
+    cost of potentially missing longer plays. This is particularly
+    useful if you are slicing broadcast footage, where imposing a cap
+    at about 15 seconds can decrease storage requirements by more than
+    half without missing much.
+
+    When `cut_scoreboard` is `True`, the first 3.0 seconds of the play
+    will be clipped to remove the scoreboard view.
+
+    When `offset` is greater than `0`, it is subtracted from the start
+    time of `play` to get the actual start time used.
+    """
+    outdir = _play_path(footage_play_dir, gobj.eid)
+    st = play.start
+    outpath = path.join(outdir, '%s.mp4' % play.idstr())
+
+    st = st.add_seconds(-offset)
+    et = play.end
+    if et is None:  # Probably the last play of the game.
+        et = st.add_seconds(40)
+    if max_duration > 0 and (et.seconds() - st.seconds()) > max_duration:
+        et = st.add_seconds(max_duration)
+
+    if cut_scoreboard:
+        st = st.add_seconds(3.0)
+
+    dr = PlayTime(seconds=et.fractional() - st.fractional())
+
+    start_time = '%02d:%02d:%02d.%d' % (st.hh, st.mm, st.ss, st.milli)
+    duration = '%02d:%02d:%02d.%d' % (dr.hh, dr.mm, dr.ss, dr.milli)
+    cmd = [
+        'ffmpeg',
+        '-ss', start_time,
+        '-i', full_footage_file,
+        '-acodec', 'copy',
+        '-vcodec', 'copy',
+         '-absf', 'aac_adtstoasc',  # no idea. ffmpeg says I need it though.
+        '-t', duration,
+        outpath,
+    ]
+    _run_command(cmd)
+
+
+def artificial_slice(footage_play_dir, gobj, gobj_play):
+    """
+    Creates a video file that contains a single static image with a
+    textual description of the play. The purpose is to provide some
+    representation of a play even if its video form doesn't exist. (Or
+    more likely, the play-by-play meta data for that play is corrupt.)
+
+    This function requires the use of ImageMagick's `convert` with
+    pango support.
+
+    Note that `gobj_play` is an `nflgame.game.Play` object and not a
+    `nflvid.Play` object.
+    """
+    outdir = _play_path(footage_play_dir, gobj.eid)
+    outpath = path.join(outdir, '%04d.mp4' % int(gobj_play.playid))
+
+    pango = '<span size="20000" foreground="white">'
+    with tempfile.NamedTemporaryFile(mode='w+', suffix='.png') as tmp:
+        cmd = ['convert',
+               '-size', '640x480',  # size of coach footage. configurable?
+               '-background', 'black',
+               'pango:\n\n\n\n\n\n\n\n\n\n%s%s</span>' % (pango, gobj_play),
+               tmp.name,
+               ]
+        _run_command(cmd)
+
+        cmd = ['ffmpeg',
+               '-f', 'image2',
+               '-loop', '1',
+               '-r:v', '7',
+               '-i', tmp.name,
+               '-pix_fmt', 'yuv420p',
+               '-an',
+               '-t', '10',
+               outpath,
+               ]
+        _run_command(cmd)
+
+
+def fetch_single_slice(footage_play_dir, gobj, play_id):
+    play = plays(gobj)[str(play_id)]
+    outdir = _play_path(footage_play_dir, gobj.eid)
+    outpath = os.path.join(outdir, '%s.mp4' % play.idstr())
+    if os.access(outpath, os.R_OK):
+        _eprint('Found play %d from game %s %s' % (
+            play_id, gobj.eid, _nice_game(gobj)))
+        return
+    _eprint('Downloading play %d from game %s %s' % (
+        play_id, gobj.eid, _nice_game(gobj)))
+    cmd = get_base_coach_rtmpdump_cmd(gobj)
+    cmd += ['--start', str(play.start.seconds())]
+    cmd += ['--stop', str(play.end.seconds())]
+    if not os.access(outdir, os.R_OK):
+        os.makedirs(outdir)
+    cmd += ['-o', outpath]
+    try:
+        _run_command(cmd)
+    except:
+        _eprint('FAILED to download play %d from game %s %s' % (
+            play_id, gobj.eid, _nice_game(gobj)))
+        os.remove(outpath)
+        raise
+
+
+def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False,
+                       condensed=False):
+    """
+    Starts an `ffmpeg` process to download the full broadcast of the
+    given game with the quality provided. The qualities available are:
+    400, 800, 1200, 1600, 2400, 3000, 4500 with 4500 being the best.
+
+    The footage will be saved to the following path:
+
+        footage_dir/{eid}.mp4
+
+    If footage is already at that path, then an
+    `exceptions.LookupError` is raised.
+
+    A full game's worth of broadcast footage at a quality of 1600 is
+    about **2GB**.
+
+    If `dry_run` is `True`, then only the first 30 seconds of the game
+    will be downloaded. Use this to quickly make sure everything is
+    working correctly.
+
+    If `condensed` is `True`, then a small recap of the game will be
+    downloaded instead.
+    """
+    fp = _full_path(footage_dir, gobj.eid)
+    if os.access(fp, os.R_OK):
+        raise LookupError('Footage path "%s" already exists.' % fp)
+
+    urls = broadcast_urls(gobj, quality, condensed=condensed)
+    url = first_valid_broadcast_url(urls)
+    if url is None:
+        _eprint('BAD URLs for game %s: %s'
+                % (_nice_game(gobj), ', '.join(urls)))
+        _eprint('FAILED to download game %s' % _nice_game(gobj))
+        return
+
+    cmd = ['ffmpeg']
+    if not _is_avconv():
+        cmd += ['-timeout', '120']
+    cmd += ['-i', url]
+    if dry_run:
+        cmd += ['-t', '30']
+    cmd += [
+        '-absf', 'aac_adtstoasc',  # no idea. ffmpeg says I need it though.
+        '-acodec', 'copy',
+        '-vcodec', 'copy',
+        fp,
+    ]
+
+    _eprint('Downloading game %s %s' % (gobj.eid, _nice_game(gobj)))
+    if not _run_command(cmd, monitor_file=fp):
+        _eprint('FAILED to download game %s' % _nice_game(gobj))
+    else:
+        _eprint('DONE with game %s %s' % (gobj.eid, _nice_game(gobj)))
+
+
+def get_base_coach_rtmpdump_cmd(gobj):
+    server, app, path = coach_url(gobj)
+
+    return ['rtmpdump',
+           '--rtmp', server,
+           '--app', app,
+           '--playpath', path,
+           '--timeout', '10',
+           ]
+
+
+def download_coach(footage_dir, gobj, dry_run=False):
+    """
+    Starts an `rtmpdump` process to download the full coach footage of
+    the given game. Currently, the only quality available is 1600.
+
+    The footage will be saved to the following path:
+
+        footage_dir/{eid}.mp4
+
+    If footage is already at that path, then an
+    `exceptions.LookupError` is raised.
+
+    A full game's worth of footage at a quality of 1600 is about
+    **1GB**.
+    """
+    fp = _full_path(footage_dir, gobj.eid)
+    if os.access(fp, os.R_OK):
+        raise LookupError('Footage path "%s" already exists.' % fp)
+
+    cmd = get_base_coach_rtmpdump_cmd(gobj)
+    if dry_run:
+        cmd += ['--stop', '30']
+    cmd += ['-o', fp]
+
+    _eprint('Downloading game %s %s' % (gobj.eid, _nice_game(gobj)))
+    status = _run_command(cmd)
+    if status is None:
+        _eprint('DONE (incomplete) with game %s %s'
+                % (gobj.eid, _nice_game(gobj)))
+    elif not status:
+        _eprint('FAILED to download game %s %s' % (gobj.eid, _nice_game(gobj)))
+        try:
+            os.remove(fp)
+        except OSError:
+            pass
+    else:
+        fp_size = 0
+        try:
+            fp_size = os.stat(fp).st_size
+        except OSError:
+            pass
+        except AttributeError:
+            pass
+        if fp_size > 0:
+            _eprint('DONE with game %s %s' % (gobj.eid, _nice_game(gobj)))
+        else:
+            _eprint('FAILED to download game %s %s'
+                    % (gobj.eid, _nice_game(gobj)))
+            _eprint('No data retrieved. Maybe coach footage does not exist '
+                    'yet?')
+            try:
+                os.remove(fp)
+            except OSError:
+                pass
+
+
+def _file_monitor(pid, f, stop, timeout=90):
+    '''
+    Given a path to a file `f` and a `pid` of a process writing to that
+    file, this will repeatedly check whether a file is increasing in
+    size. If it doesn't increase in size after `timeout` seconds, then
+    `SIGKILL` is sent to `pid`.
+
+    `stop` must be a `threading.Event`. When it is set, this monitor
+    will quit.
+    '''
+    last_size = None
+    while True:
+        if stop.is_set():
+            break
+        try:
+            size = os.stat(f).st_size
+        except OSError:
+            size = 0
+        if size == last_size:
+            _eprint('Download for "%s" has not made progress in %d seconds.\n'
+                    'Killing the download process %d.\n'
+                    '(Tip: Use `nflvid-incomplete` to find incomplete game '
+                    'downloads.)'
+                    % (f, timeout, pid))
+            os.kill(pid, signal.SIGKILL)
+            break
+        last_size = size
+        time.sleep(timeout)
+
+
+def _run_command(cmd, monitor_file=None):
+    monitor, stop = None, None
+    try:
+        p = subprocess.Popen(cmd,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+        if monitor_file is not None:
+            stop = threading.Event()
+            monitor = threading.Thread(target=_file_monitor,
+                                       args=(p.pid, monitor_file, stop))
+            monitor.daemon = True  # Don't hold up the program on exit.
+            monitor.start()
+
+        output = p.communicate()[0].strip()
+
+        if p.returncode != 0:
+            err = subprocess.CalledProcessError(p.returncode, cmd)
+            err.output = output
+            raise err
+    except subprocess.CalledProcessError, e:
+        # A hack for rtmpdump...
+        if e.returncode == 2 and cmd[0] == 'rtmpdump':
+            return None
+        indent = lambda s: '\n'.join(map(lambda l: '   %s' % l, s.split('\n')))
+        _eprint("Could not run '%s' (exit code %d):\n%s"
+                % (' '.join(cmd), e.returncode, indent(e.output)))
+        return False
+    except OSError, e:
+        _eprint("Could not run '%s' (errno: %d): %s"
+                % (' '.join(cmd), e.errno, e.strerror))
+        return False
+    finally:
+        if monitor is not None:
+            stop.set()
+            # No need to wait...
+    return output or True
+
+
+def plays(gobj, coach=True):
+    """
+    Returns an ordered dictionary of all plays for a particular game
+    with timings for the coach footage. If `coach` is `False`, then the
+    timings will be for the broadcast footage.
+
+    The game `gobj` must be an `nflgame.game.Game` object.
+
+    If there is a problem retrieving the data, `None` is returned.
+
+    If the game is over, then the XML data is saved to disk.
+    """
+    if coach:
+        cache = __coach_cache
+    else:
+        cache = __broadcast_cache
+
+    if gobj.game_over() and gobj.eid in cache:
+        return cache[gobj.eid]
+
+    rawxml = _get_xml_data(gobj.eid, gobj.gamekey)
+    ps = _xml_plays(rawxml, coach)
+    if ps is None:
+        return None
+    if len(ps) == 0:
+        _eprint('Could not find timing nodes in XML data, '
+                'which provide the start time of each play.')
+        return None
+    __broadcast_cache[gobj.eid] = ps
+
+    # Save the XML data to disk if the game is over.
+    fp = _xmlf % gobj.eid
+    if gobj.game_over() and not os.access(fp, os.R_OK):
+        try:
+            print >> gzip.open(fp, 'w+'), rawxml,
+        except IOError:
+            _eprint('Could not cache XML data. Please make '
+                    '"%s" writable.' % path.dirname(fp))
+    return ps
+
+
+def play(gobj, playid, coach=True):
+    """
+    Returns a `nflvid.Play` object given a game and a play id with
+    timings for the coach footage. If `coach` is `False`, then the
+    timings will be for the broadcast footage.
+
+    The game `gobj` must be an `nflgame.game.Game` object.
+
+    If a play with the given id does not exist, `None` is returned.
+    """
+    return plays(gobj).get(playid, None)
+
+
+class Play (object):
+    """
+    Represents the start and end timings of single play in coach or
+    broadcast footage.
+    """
+
+    def __init__(self, start, end, playid, game_end):
+        self.start = start
+        """
+        Corresponds to the `ArchiveTCIN` or `CATIN` field in the source
+        data. `ArchiveTCIN` is used for broadcast footage while `CATIN`
+        is used for coach footage.
+        """
+
+        self.end = end
+        """
+        The end time of the play. This is typically the start time of
+        the next play (from `ArchiveTCIN` or `CATIN`). When the next
+        play isn't available, this is `None`.
+        """
+
+        self.playid = playid
+        """
+        A numeric play identifier that serves as a foreign key from an
+        `nflgame.game.Play` object to a `nflvid.Play` object.
+        """
+
+        self.game_end = game_end
+        """
+        Corresponds to the `endTime` of the broadcast footage for the
+        game that this play belongs to. It is used to compute a correct
+        offset of the start time for the play.
+        """
+
+    def idstr(self):
+        """Returns a string play id padded with zeroes."""
+        return '%04d' % int(self.playid)
+
+    def __str__(self):
+        return '(%s, %s, %s)' % (self.playid, self.start, self.end)
+
+
+class PlayTime (object):
+    """
+    Represents a footage time point retrieved from the source XML
+    meta data.
+    """
+    __pdoc__['hh'] = 'The hour portion of the play time.'
+    __pdoc__['mm'] = 'The minutes portion of the play time.'
+    __pdoc__['ss'] = 'The seconds portion of the play time.'
+    __pdoc__['milli'] = 'The milliseconds portion of the play time.'
+
+    def __init__(self, point=None, seconds=None):
+        """
+        Construct a PlayTime object given a `point` in time in the
+        format `HH:MM:SS:MMM` where `MMM` can be either 2 or 3 digits.
+
+        Alternatively, `seconds` can be provided (which may be a
+        float).
+        """
+        if seconds is not None:
+            milli = int(1000 * (seconds - math.floor(seconds)))
+
+            seconds = int(math.floor(seconds))
+            hh = seconds / 3600
+
+            seconds -= hh * 3600
+            mm = seconds / 60
+
+            seconds -= mm * 60
+            ss = seconds
+
+            self.hh, self.mm, self.ss, self.milli = hh, mm, ss, milli
+            self.__point = '%02d:%02d:%02d:%03d' % (hh, mm, ss, milli)
+            return
+
+        self.__point = point
+        self.__coach = False
+
+        try:
+            parts = self.__point.split(':')
+            if len(parts[3]) == 3:
+                self.__coach = True
+            parts = map(int, parts)
+        except ValueError:
+            assert False, 'Bad play time format: %s' % self.__point
+
+        if len(parts) != 4:
+            assert False, 'Expected 4 parts but got %d in: %s' \
+                % (len(parts), self.__point)
+
+        self.hh, self.mm, self.ss, self.milli = parts
+
+        # I believe milliseconds is given in tens of milliseconds
+        # for the ArchiveTCIN node. But the CATIN node (coach timing)
+        # provides regular milliseconds.
+        if not self.__coach:
+            self.milli *= 10
+
+    def add_seconds(self, seconds):
+        """
+        Returns a new PlayTime with `seconds` (int or float) added to
+        self.
+        """
+        return PlayTime(seconds=self.fractional() + seconds)
+
+    def seconds(self):
+        """
+        Returns this time point rounded to the nearest second.
+        """
+        secs = (self.hh * 60 * 60) + (self.mm * 60) + self.ss
+        if self.milli >= 50:
+            secs += 1
+        return secs
+
+    def fractional(self):
+        """
+        Returns this time point as fractional seconds based on
+        milliseconds.
+        """
+        secs = (self.hh * 60 * 60) + (self.mm * 60) + self.ss
+        secs = (1000 * secs) + self.milli
+        return float(secs) / 1000.0
+
+    def __cmp__(self, other):
+        return cmp(self.fractional(), other.fractional())
+
+    def __sub__(self, other):
+        """
+        Returns the difference rounded to nearest second between two
+        time points.  The `other` time point must take place before the
+        current time point.
+        """
+        assert other <= self, '%s is not <= than %s' % (other, self)
+        return int(round(self.fractional() - other.fractional()))
+
+    def __str__(self):
+        return self.__point
+
+
+def _video_duration(fp):
+    """
+    Returns the duration of the entire video at file path `fp` as a
+    `nflvid.PlayTime` object.
+
+    If there was a problem using `ffprobe` to get the duration, `None`
+    is returned.
+    """
+    cmd = ['ffprobe', '-loglevel', 'error', '-show_format', fp,
+           '-print_format', 'json']
+    out = _run_command(cmd)
+    if not out:
+        return None
+    return PlayTime(seconds=float(json.loads(out)['format']['duration']))
+
+
+def _xml_plays(data, coach=True):
+    """
+    Parses the XML raw string `data` given into an ordered dictionary
+    of `nflvid.Play` objects corresponding to coach play timings. If
+    `coach` is set to `False`, then play timings for the broadcast are
+    retrieved.
+
+    The dictionary is keyed by play id.
+
+    A second return value, the ending time of the broadcast footage,
+    is also returned. (This is used to compute an offset between the
+    ArchiveTCIN time and when the play really starts.)
+    """
+    if data is None:
+        return None
+    soup = bs4.BeautifulSoup(data)
+
+    game_end_time = soup.find('dataset').get('endtime', None)
+    if game_end_time is not None:
+        game_end_time = PlayTime(game_end_time.strip())
+
+    # Load everything into a list first, since we need to look ahead to see
+    # the next play's start time to compute the current play's duration.
+    rows = []
+    for row in soup.find_all('row'):
+        playid = row.find('id')
+        if not playid:
+            playid = row.get('playid', None)
+            if not playid:
+                continue
+            playid = playid.strip()
+        else:
+            playid = playid.get_text().strip()
+
+        if coach:
+            start = row.find('catin')
+        else:
+            start = row.find('archivetcin')
+        if not start:
+            continue
+        start = PlayTime(start.get_text().strip())
+        rows.append((playid, start, row))
+
+    # A predicate for determining whether to ignore a row or not in our final
+    # result set. For example, timeouts take a lot of time but aren't needed
+    # for play-by-play footage.
+    def ignore(row):
+        if 'playdescription' in row.attrs:
+            if row['playdescription'].lower().startswith('timeout'):
+                return True
+            if row['playdescription'].lower().startswith('two-minute'):
+                return True
+
+        # Did we miss anything?
+        if 'preplaybyplay' in row.attrs:
+            if row['preplaybyplay'].lower().startswith('timeout'):
+                return True
+        return False
+
+    d = OrderedDict()
+    for i, (playid, start, row) in enumerate(rows):
+        if ignore(row):
+            continue
+        end = None
+        if i < len(rows) - 1:
+            end = rows[i+1][1]
+        d[playid] = Play(start, end, playid, game_end_time)
+    return d
+
+
+def _get_xml_data(eid=None, gamekey=None, fpath=None):
+    """
+    Returns the XML play data corresponding to the game given. A game
+    must be specified in one of two ways: by providing the `eid` and
+    `gamekey` or by providing the file path `fpath` to a gzipped XML
+    file.
+
+    If the XML data is already on disk, it is read, decompressed and
+    returned.
+
+    Otherwise, the XML data is downloaded from the NFL web
+    site. If the data doesn't exist yet or there was an error,
+    `nflvid._get_xml_data` returns None.
+    """
+    assert (eid is not None and gamekey is not None) or fpath is not None
+
+    if fpath is not None:
+        return gzip.open(fpath).read()
+
+    fpath = _xmlf % eid
+    if os.access(fpath, os.R_OK):
+        return gzip.open(fpath).read()
+
+    year = int(eid[0:4])
+    month = int(eid[4:6])
+    if month <= 3:
+        year -= 1
+    base = _xml_base_urls.get(str(year), _xml_base_urls['default'])
+    u = base % (year, gamekey)  # The year and the game key.
+    try:
+        return urllib2.urlopen(u, timeout=10).read()
+    except urllib2.HTTPError, e:
+        _eprint('%s (%s)' % (e, u))
+    except socket.timeout, e:
+        _eprint('%s (%s)' % (e, u))
+    return None
+
+
+def _is_avconv():
+    """
+    Returns `True` if the `ffmpeg` binary is really `avconv`.
+    """
+    out = _run_command(['ffmpeg', '-version'])
+    return out and isinstance(out, strtype) and 'DEPRECATED' in out
+</code></pre>
+  </div>
+
+  </header>
+
+  <section id="section-items">
+
+    <h2 class="section-title" id="header-functions">Functions</h2>
+      
+  <div class="item">
+    <div class="name def" id="nflvid.artificial_slice">
+    <p>def <span class="ident">artificial_slice</span>(</p><p>footage_play_dir, gobj, gobj_play)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Creates a video file that contains a single static image with a
+textual description of the play. The purpose is to provide some
+representation of a play even if its video form doesn't exist. (Or
+more likely, the play-by-play meta data for that play is corrupt.)</p>
+<p>This function requires the use of ImageMagick's <code>convert</code> with
+pango support.</p>
+<p>Note that <code>gobj_play</code> is an <code>nflgame.game.Play</code> object and not a
+<a href="#nflvid.Play"><code>Play</code></a> object.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.artificial_slice', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.artificial_slice" class="source">
+    <pre><code>def artificial_slice(footage_play_dir, gobj, gobj_play):
+    """
+    Creates a video file that contains a single static image with a
+    textual description of the play. The purpose is to provide some
+    representation of a play even if its video form doesn't exist. (Or
+    more likely, the play-by-play meta data for that play is corrupt.)
+
+    This function requires the use of ImageMagick's `convert` with
+    pango support.
+
+    Note that `gobj_play` is an `nflgame.game.Play` object and not a
+    `nflvid.Play` object.
+    """
+    outdir = _play_path(footage_play_dir, gobj.eid)
+    outpath = path.join(outdir, '%04d.mp4' % int(gobj_play.playid))
+
+    pango = '<span size="20000" foreground="white">'
+    with tempfile.NamedTemporaryFile(mode='w+', suffix='.png') as tmp:
+        cmd = ['convert',
+               '-size', '640x480',  # size of coach footage. configurable?
+               '-background', 'black',
+               'pango:\n\n\n\n\n\n\n\n\n\n%s%s</span>' % (pango, gobj_play),
+               tmp.name,
+               ]
+        _run_command(cmd)
+
+        cmd = ['ffmpeg',
+               '-f', 'image2',
+               '-loop', '1',
+               '-r:v', '7',
+               '-i', tmp.name,
+               '-pix_fmt', 'yuv420p',
+               '-an',
+               '-t', '10',
+               outpath,
+               ]
+        _run_command(cmd)
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.broadcast_urls">
+    <p>def <span class="ident">broadcast_urls</span>(</p><p>gobj, quality=&#39;1600&#39;, condensed=False)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Returns possible HTTP Live Stream URLs (an m3u8 file) for the given
+game and quality. Use <a href="#nflvid.url_status"><code>url_status</code></a> to determine
+if it's a valid URL or not. Alternatively, use
+<a href="#nflvid.first_valid_broadcast_url"><code>first_valid_broadcast_url</code></a> to retrieve the first valid URL.</p>
+<p>The kludge here is that the broadcast URLs can vary slightly and
+unpredictably from game to game. I haven't discovered a reliable
+means of accurately predicting which URL is correct.</p>
+<p>Note that it is unlikely any URL returned will be valid for
+preseason or postseason games.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.broadcast_urls', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.broadcast_urls" class="source">
+    <pre><code>def broadcast_urls(gobj, quality='1600', condensed=False):
+    """
+    Returns possible HTTP Live Stream URLs (an m3u8 file) for the given
+    game and quality. Use `nflvid.url_status` to determine
+    if it's a valid URL or not. Alternatively, use
+    `nflvid.first_valid_broadcast_url` to retrieve the first valid URL.
+
+    The kludge here is that the broadcast URLs can vary slightly and
+    unpredictably from game to game. I haven't discovered a reliable
+    means of accurately predicting which URL is correct.
+
+    Note that it is unlikely any URL returned will be valid for
+    preseason or postseason games.
+    """
+    year, month, day = gobj.eid[0:4], gobj.eid[4:6], gobj.eid[6:8]
+    if gobj.schedule['season_type'] == 'POST':
+        stype = 3
+    elif gobj.schedule['season_type'] == 'PRE':
+        stype = 1
+    else:
+        stype = 2
+
+    url = _broadcast_urls.get(year, _broadcast_urls['default'])
+    kind = 'snap2w' if condensed else 'whole'
+    return [
+        url
+        % (year, month, day, gobj.gamekey, stype, gobj.gamekey,
+           gobj.away.lower(), gobj.home.lower(), gobj.season(), kind,
+           i, quality)
+        for i in ['3', '2', '1a', '1', '4a', '4', '9']
+        # We count down here because higher numbers seem to take precedent.
+        # For example, the DEN @ NYG game in week 2 of 2013 regular season
+        # game. Using `1` links to valid footage that is only ~40 minutes
+        # long. The real stream uses `2`.
+        # I have no idea if this is a general rule or not.
+    ]
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.coach_url">
+    <p>def <span class="ident">coach_url</span>(</p><p>gobj)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Returns the rtmp URL as a triple for the coach footage of the given
+game. The elements of the triple are:</p>
+<pre><code>(rtmp server, rtmp app name, rtmp playpath)
+</code></pre>
+<p>Coach video only comes in 1600 quality.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.coach_url', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.coach_url" class="source">
+    <pre><code>def coach_url(gobj):
+    """
+    Returns the rtmp URL as a triple for the coach footage of the given
+    game. The elements of the triple are:
+
+        (rtmp server, rtmp app name, rtmp playpath)
+
+    Coach video only comes in 1600 quality.
+    """
+    return (
+        _coach_url[0],
+        _coach_url[1],
+        _coach_url[2] % (gobj.season(), gobj.gamekey),
+    )
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.download_broadcast">
+    <p>def <span class="ident">download_broadcast</span>(</p><p>footage_dir, gobj, quality=&#39;1600&#39;, dry_run=False, condensed=False)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Starts an <code>ffmpeg</code> process to download the full broadcast of the
+given game with the quality provided. The qualities available are:
+400, 800, 1200, 1600, 2400, 3000, 4500 with 4500 being the best.</p>
+<p>The footage will be saved to the following path:</p>
+<pre><code>footage_dir/{eid}.mp4
+</code></pre>
+<p>If footage is already at that path, then an
+<code>exceptions.LookupError</code> is raised.</p>
+<p>A full game's worth of broadcast footage at a quality of 1600 is
+about <strong>2GB</strong>.</p>
+<p>If <code>dry_run</code> is <code>True</code>, then only the first 30 seconds of the game
+will be downloaded. Use this to quickly make sure everything is
+working correctly.</p>
+<p>If <code>condensed</code> is <code>True</code>, then a small recap of the game will be
+downloaded instead.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.download_broadcast', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.download_broadcast" class="source">
+    <pre><code>def download_broadcast(footage_dir, gobj, quality='1600', dry_run=False,
+                       condensed=False):
+    """
+    Starts an `ffmpeg` process to download the full broadcast of the
+    given game with the quality provided. The qualities available are:
+    400, 800, 1200, 1600, 2400, 3000, 4500 with 4500 being the best.
+
+    The footage will be saved to the following path:
+
+        footage_dir/{eid}.mp4
+
+    If footage is already at that path, then an
+    `exceptions.LookupError` is raised.
+
+    A full game's worth of broadcast footage at a quality of 1600 is
+    about **2GB**.
+
+    If `dry_run` is `True`, then only the first 30 seconds of the game
+    will be downloaded. Use this to quickly make sure everything is
+    working correctly.
+
+    If `condensed` is `True`, then a small recap of the game will be
+    downloaded instead.
+    """
+    fp = _full_path(footage_dir, gobj.eid)
+    if os.access(fp, os.R_OK):
+        raise LookupError('Footage path "%s" already exists.' % fp)
+
+    urls = broadcast_urls(gobj, quality, condensed=condensed)
+    url = first_valid_broadcast_url(urls)
+    if url is None:
+        _eprint('BAD URLs for game %s: %s'
+                % (_nice_game(gobj), ', '.join(urls)))
+        _eprint('FAILED to download game %s' % _nice_game(gobj))
+        return
+
+    cmd = ['ffmpeg']
+    if not _is_avconv():
+        cmd += ['-timeout', '120']
+    cmd += ['-i', url]
+    if dry_run:
+        cmd += ['-t', '30']
+    cmd += [
+        '-absf', 'aac_adtstoasc',  # no idea. ffmpeg says I need it though.
+        '-acodec', 'copy',
+        '-vcodec', 'copy',
+        fp,
+    ]
+
+    _eprint('Downloading game %s %s' % (gobj.eid, _nice_game(gobj)))
+    if not _run_command(cmd, monitor_file=fp):
+        _eprint('FAILED to download game %s' % _nice_game(gobj))
+    else:
+        _eprint('DONE with game %s %s' % (gobj.eid, _nice_game(gobj)))
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.download_coach">
+    <p>def <span class="ident">download_coach</span>(</p><p>footage_dir, gobj, dry_run=False)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Starts an <code>rtmpdump</code> process to download the full coach footage of
+the given game. Currently, the only quality available is 1600.</p>
+<p>The footage will be saved to the following path:</p>
+<pre><code>footage_dir/{eid}.mp4
+</code></pre>
+<p>If footage is already at that path, then an
+<code>exceptions.LookupError</code> is raised.</p>
+<p>A full game's worth of footage at a quality of 1600 is about
+<strong>1GB</strong>.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.download_coach', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.download_coach" class="source">
+    <pre><code>def download_coach(footage_dir, gobj, dry_run=False):
+    """
+    Starts an `rtmpdump` process to download the full coach footage of
+    the given game. Currently, the only quality available is 1600.
+
+    The footage will be saved to the following path:
+
+        footage_dir/{eid}.mp4
+
+    If footage is already at that path, then an
+    `exceptions.LookupError` is raised.
+
+    A full game's worth of footage at a quality of 1600 is about
+    **1GB**.
+    """
+    fp = _full_path(footage_dir, gobj.eid)
+    if os.access(fp, os.R_OK):
+        raise LookupError('Footage path "%s" already exists.' % fp)
+
+    cmd = get_base_coach_rtmpdump_cmd(gobj)
+    if dry_run:
+        cmd += ['--stop', '30']
+    cmd += ['-o', fp]
+
+    _eprint('Downloading game %s %s' % (gobj.eid, _nice_game(gobj)))
+    status = _run_command(cmd)
+    if status is None:
+        _eprint('DONE (incomplete) with game %s %s'
+                % (gobj.eid, _nice_game(gobj)))
+    elif not status:
+        _eprint('FAILED to download game %s %s' % (gobj.eid, _nice_game(gobj)))
+        try:
+            os.remove(fp)
+        except OSError:
+            pass
+    else:
+        fp_size = 0
+        try:
+            fp_size = os.stat(fp).st_size
+        except OSError:
+            pass
+        except AttributeError:
+            pass
+        if fp_size > 0:
+            _eprint('DONE with game %s %s' % (gobj.eid, _nice_game(gobj)))
+        else:
+            _eprint('FAILED to download game %s %s'
+                    % (gobj.eid, _nice_game(gobj)))
+            _eprint('No data retrieved. Maybe coach footage does not exist '
+                    'yet?')
+            try:
+                os.remove(fp)
+            except OSError:
+                pass
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.fetch_single_slice">
+    <p>def <span class="ident">fetch_single_slice</span>(</p><p>footage_play_dir, gobj, play_id)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.fetch_single_slice', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.fetch_single_slice" class="source">
+    <pre><code>def fetch_single_slice(footage_play_dir, gobj, play_id):
+    play = plays(gobj)[str(play_id)]
+    outdir = _play_path(footage_play_dir, gobj.eid)
+    outpath = os.path.join(outdir, '%s.mp4' % play.idstr())
+    if os.access(outpath, os.R_OK):
+        _eprint('Found play %d from game %s %s' % (
+            play_id, gobj.eid, _nice_game(gobj)))
+        return
+    _eprint('Downloading play %d from game %s %s' % (
+        play_id, gobj.eid, _nice_game(gobj)))
+    cmd = get_base_coach_rtmpdump_cmd(gobj)
+    cmd += ['--start', str(play.start.seconds())]
+    cmd += ['--stop', str(play.end.seconds())]
+    if not os.access(outdir, os.R_OK):
+        os.makedirs(outdir)
+    cmd += ['-o', outpath]
+    try:
+        _run_command(cmd)
+    except:
+        _eprint('FAILED to download play %d from game %s %s' % (
+            play_id, gobj.eid, _nice_game(gobj)))
+        os.remove(outpath)
+        raise
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.first_valid_broadcast_url">
+    <p>def <span class="ident">first_valid_broadcast_url</span>(</p><p>urls)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Returns the first valid broadcast URL in the list. If there is no
+valid broadcast URL, then <code>None</code> is returned.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.first_valid_broadcast_url', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.first_valid_broadcast_url" class="source">
+    <pre><code>def first_valid_broadcast_url(urls):
+    """
+    Returns the first valid broadcast URL in the list. If there is no
+    valid broadcast URL, then `None` is returned.
+    """
+    for url in urls:
+        if url_status(url) == '200':
+            return url
+    return None
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.footage_full">
+    <p>def <span class="ident">footage_full</span>(</p><p>footage_dir, eid)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Returns the path to the full video for a given game inside an
+nflvid footage directory.</p>
+<p>If the full footage doesn't exist, then None is returned.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.footage_full', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.footage_full" class="source">
+    <pre><code>def footage_full(footage_dir, eid):
+    """
+    Returns the path to the full video for a given game inside an
+    nflvid footage directory.
+
+    If the full footage doesn't exist, then None is returned.
+    """
+    fp = _full_path(footage_dir, eid)
+    if not os.access(fp, os.R_OK):
+        return None
+    return fp
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.footage_play">
+    <p>def <span class="ident">footage_play</span>(</p><p>footage_play_dir, eid, playid, stat=True)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Returns a file path to an existing play slice in the footage play
+directory for the game and play given.</p>
+<p>If the file for the play is not readable, then <code>None</code> is returned.</p>
+<p>If <code>stat</code> is <code>False</code>, then the file's access will not be checked.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.footage_play', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.footage_play" class="source">
+    <pre><code>def footage_play(footage_play_dir, eid, playid, stat=True):
+    """
+    Returns a file path to an existing play slice in the footage play
+    directory for the game and play given.
+
+    If the file for the play is not readable, then `None` is returned.
+
+    If `stat` is `False`, then the file's access will not be checked.
+    """
+    gamedir = _play_path(footage_play_dir, eid)
+    fp = path.join(gamedir, '%04d.mp4' % int(playid))
+    if stat and not os.access(fp, os.R_OK):
+        return None
+    return fp
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.footage_plays">
+    <p>def <span class="ident">footage_plays</span>(</p><p>footage_play_dir, eid)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Returns a list of all footage broken down by play inside an nflvid
+footage directory. The list is sorted numerically by play id.</p>
+<p>If no footage breakdown exists for the game provided, then an empty
+list is returned.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.footage_plays', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.footage_plays" class="source">
+    <pre><code>def footage_plays(footage_play_dir, eid):
+    """
+    Returns a list of all footage broken down by play inside an nflvid
+    footage directory. The list is sorted numerically by play id.
+
+    If no footage breakdown exists for the game provided, then an empty
+    list is returned.
+    """
+    fp = _play_path(footage_play_dir, eid)
+    if not os.access(fp, os.R_OK):
+        return []
+    return sorted(os.listdir(fp), key=lambda s: int(s[0:-4]))
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.get_base_coach_rtmpdump_cmd">
+    <p>def <span class="ident">get_base_coach_rtmpdump_cmd</span>(</p><p>gobj)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.get_base_coach_rtmpdump_cmd', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.get_base_coach_rtmpdump_cmd" class="source">
+    <pre><code>def get_base_coach_rtmpdump_cmd(gobj):
+    server, app, path = coach_url(gobj)
+
+    return ['rtmpdump',
+           '--rtmp', server,
+           '--app', app,
+           '--playpath', path,
+           '--timeout', '10',
+           ]
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.play">
+    <p>def <span class="ident">play</span>(</p><p>gobj, playid, coach=True)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Returns a <a href="#nflvid.Play"><code>Play</code></a> object given a game and a play id with
+timings for the coach footage. If <code>coach</code> is <code>False</code>, then the
+timings will be for the broadcast footage.</p>
+<p>The game <code>gobj</code> must be an <code>nflgame.game.Game</code> object.</p>
+<p>If a play with the given id does not exist, <code>None</code> is returned.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.play', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.play" class="source">
+    <pre><code>def play(gobj, playid, coach=True):
+    """
+    Returns a `nflvid.Play` object given a game and a play id with
+    timings for the coach footage. If `coach` is `False`, then the
+    timings will be for the broadcast footage.
+
+    The game `gobj` must be an `nflgame.game.Game` object.
+
+    If a play with the given id does not exist, `None` is returned.
+    """
+    return plays(gobj).get(playid, None)
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.plays">
+    <p>def <span class="ident">plays</span>(</p><p>gobj, coach=True)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Returns an ordered dictionary of all plays for a particular game
+with timings for the coach footage. If <code>coach</code> is <code>False</code>, then the
+timings will be for the broadcast footage.</p>
+<p>The game <code>gobj</code> must be an <code>nflgame.game.Game</code> object.</p>
+<p>If there is a problem retrieving the data, <code>None</code> is returned.</p>
+<p>If the game is over, then the XML data is saved to disk.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.plays', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.plays" class="source">
+    <pre><code>def plays(gobj, coach=True):
+    """
+    Returns an ordered dictionary of all plays for a particular game
+    with timings for the coach footage. If `coach` is `False`, then the
+    timings will be for the broadcast footage.
+
+    The game `gobj` must be an `nflgame.game.Game` object.
+
+    If there is a problem retrieving the data, `None` is returned.
+
+    If the game is over, then the XML data is saved to disk.
+    """
+    if coach:
+        cache = __coach_cache
+    else:
+        cache = __broadcast_cache
+
+    if gobj.game_over() and gobj.eid in cache:
+        return cache[gobj.eid]
+
+    rawxml = _get_xml_data(gobj.eid, gobj.gamekey)
+    ps = _xml_plays(rawxml, coach)
+    if ps is None:
+        return None
+    if len(ps) == 0:
+        _eprint('Could not find timing nodes in XML data, '
+                'which provide the start time of each play.')
+        return None
+    __broadcast_cache[gobj.eid] = ps
+
+    # Save the XML data to disk if the game is over.
+    fp = _xmlf % gobj.eid
+    if gobj.game_over() and not os.access(fp, os.R_OK):
+        try:
+            print >> gzip.open(fp, 'w+'), rawxml,
+        except IOError:
+            _eprint('Could not cache XML data. Please make '
+                    '"%s" writable.' % path.dirname(fp))
+    return ps
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.slice">
+    <p>def <span class="ident">slice</span>(</p><p>footage_play_dir, full_footage_file, gobj, coach=True, num_parallel=4, dry_run=False)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Uses <code>ffmpeg</code> to slice the given footage file into play-by-play
+pieces.  The <code>full_footage_file</code> should be a path to a full
+game downloaded with <code>nflvid-footage</code> and <code>gobj</code> should be the
+corresponding <code>nflgame.game.Game</code> object.</p>
+<p>The <code>footage_play_dir</code> is where the pieces will be saved:</p>
+<pre><code>{footage_play_dir}/{eid}/{playid}.mp4
+</code></pre>
+<p>This function will not duplicate work. If a video file exists for
+a particular play, then slice will not regenerate it.</p>
+<p>Note that this function uses a <code>multiprocessing</code> pool to run
+multiple <code>ffmpeg</code> instances simultaneously. The maximum number of
+simultaneously executing <code>ffmpeg</code> commands to use is specified by
+<code>num_parallel</code>. This function only terminates when all <code>ffmpeg</code>
+commands have finished processing.</p>
+<p>If <code>coach</code> is <code>False</code>, then play timings for broadcast footage will
+be used instead of coach timings.</p>
+<p>If <code>dry_run</code> is <code>True</code>, then only the first 10 plays of the game
+are sliced.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.slice', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.slice" class="source">
+    <pre><code>def slice(footage_play_dir, full_footage_file, gobj, coach=True,
+          num_parallel=4, dry_run=False):
+    """
+    Uses `ffmpeg` to slice the given footage file into play-by-play
+    pieces.  The `full_footage_file` should be a path to a full
+    game downloaded with `nflvid-footage` and `gobj` should be the
+    corresponding `nflgame.game.Game` object.
+
+    The `footage_play_dir` is where the pieces will be saved:
+
+        {footage_play_dir}/{eid}/{playid}.mp4
+
+    This function will not duplicate work. If a video file exists for
+    a particular play, then slice will not regenerate it.
+
+    Note that this function uses a `multiprocessing` pool to run
+    multiple `ffmpeg` instances simultaneously. The maximum number of
+    simultaneously executing `ffmpeg` commands to use is specified by
+    `num_parallel`. This function only terminates when all `ffmpeg`
+    commands have finished processing.
+
+    If `coach` is `False`, then play timings for broadcast footage will
+    be used instead of coach timings.
+
+    If `dry_run` is `True`, then only the first 10 plays of the game
+    are sliced.
+    """
+    outdir = _play_path(footage_play_dir, gobj.eid)
+    if not os.access(outdir, os.R_OK):
+        os.makedirs(outdir)
+
+    unsliced = unsliced_plays(footage_play_dir, gobj, coach, dry_run)
+    if unsliced is None or len(unsliced) == 0:
+        # Only show an annoying error message if there are no sliced
+        # plays on disk.
+        if not footage_plays(footage_play_dir, gobj.eid):
+            _eprint(
+                'There are no unsliced plays remaining for game %s.\n'
+                'If they have not been sliced yet, then the XML play-by-play '
+                'meta data may not be available or is corrupt.'
+                % _nice_game(gobj))
+        return
+
+    # If this is broadcast footage, we need to find the offset of each play.
+    # My current estimate is that the offset is the difference between the
+    # the reported game end time and the actual game end time.
+    # (This only applies to broadcast footage. Coach footage is well behaved.)
+    offset = 0
+    if not coach:
+        reported = unsliced[0].game_end  # Any play will do.
+        actual = _video_duration(full_footage_file)
+        offset = reported.fractional() - actual.fractional()
+
+        # Add a little padding...
+        offset += 2
+
+        # Something has gone horribly wrong.
+        if offset < 0:
+            offset = 0
+
+    max_dur = 0 if coach else 25
+    pool = multiprocessing.pool.ThreadPool(num_parallel)
+
+    def doslice(p):
+        slice_play(footage_play_dir, full_footage_file, gobj, p,
+                   max_dur, coach, offset)
+    pool.map(doslice, unsliced)
+
+    _eprint('DONE slicing game %s %s' % (gobj.eid, _nice_game(gobj)))
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.slice_play">
+    <p>def <span class="ident">slice_play</span>(</p><p>footage_play_dir, full_footage_file, gobj, play, max_duration=0, cut_scoreboard=True, offset=0)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>This is just like <a href="#nflvid.slice"><code>slice</code></a>, but it only slices the play
+provided.  In typical cases, <a href="#nflvid.slice"><code>slice</code></a> should be used since it
+makes sure not to duplicate work.</p>
+<p>This function will not check if the play-by-play directory for
+<code>gobj</code> has been created.</p>
+<p><code>max_duration</code> is used to cap the length of a play. This
+drastically cuts down on the storage requirements of a game at the
+cost of potentially missing longer plays. This is particularly
+useful if you are slicing broadcast footage, where imposing a cap
+at about 15 seconds can decrease storage requirements by more than
+half without missing much.</p>
+<p>When <code>cut_scoreboard</code> is <code>True</code>, the first 3.0 seconds of the play
+will be clipped to remove the scoreboard view.</p>
+<p>When <code>offset</code> is greater than <code>0</code>, it is subtracted from the start
+time of <code>play</code> to get the actual start time used.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.slice_play', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.slice_play" class="source">
+    <pre><code>def slice_play(footage_play_dir, full_footage_file, gobj, play,
+               max_duration=0, cut_scoreboard=True, offset=0):
+    """
+    This is just like `nflvid.slice`, but it only slices the play
+    provided.  In typical cases, `nflvid.slice` should be used since it
+    makes sure not to duplicate work.
+
+    This function will not check if the play-by-play directory for
+    `gobj` has been created.
+
+    `max_duration` is used to cap the length of a play. This
+    drastically cuts down on the storage requirements of a game at the
+    cost of potentially missing longer plays. This is particularly
+    useful if you are slicing broadcast footage, where imposing a cap
+    at about 15 seconds can decrease storage requirements by more than
+    half without missing much.
+
+    When `cut_scoreboard` is `True`, the first 3.0 seconds of the play
+    will be clipped to remove the scoreboard view.
+
+    When `offset` is greater than `0`, it is subtracted from the start
+    time of `play` to get the actual start time used.
+    """
+    outdir = _play_path(footage_play_dir, gobj.eid)
+    st = play.start
+    outpath = path.join(outdir, '%s.mp4' % play.idstr())
+
+    st = st.add_seconds(-offset)
+    et = play.end
+    if et is None:  # Probably the last play of the game.
+        et = st.add_seconds(40)
+    if max_duration > 0 and (et.seconds() - st.seconds()) > max_duration:
+        et = st.add_seconds(max_duration)
+
+    if cut_scoreboard:
+        st = st.add_seconds(3.0)
+
+    dr = PlayTime(seconds=et.fractional() - st.fractional())
+
+    start_time = '%02d:%02d:%02d.%d' % (st.hh, st.mm, st.ss, st.milli)
+    duration = '%02d:%02d:%02d.%d' % (dr.hh, dr.mm, dr.ss, dr.milli)
+    cmd = [
+        'ffmpeg',
+        '-ss', start_time,
+        '-i', full_footage_file,
+        '-acodec', 'copy',
+        '-vcodec', 'copy',
+         '-absf', 'aac_adtstoasc',  # no idea. ffmpeg says I need it though.
+        '-t', duration,
+        outpath,
+    ]
+    _run_command(cmd)
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.unsliced_plays">
+    <p>def <span class="ident">unsliced_plays</span>(</p><p>footage_play_dir, gobj, coach=True, dry_run=False)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Scans the game directory inside footage_play_dir and returns a list
+of plays that haven't been sliced yet. In particular, a play is
+only considered sliced if the following file is readable, assuming
+{playid} is its play id:</p>
+<pre><code>{footage_play_dir}/{eid}/{playid}.mp4
+</code></pre>
+<p>All plays for the game given that don't fit this criteria will be
+returned in the list.</p>
+<p>If the list is empty, then all plays for the game have been sliced.
+Alternatively, <code>None</code> can be returned if there was a problem
+retrieving the play-by-play meta data.</p>
+<p>If <code>coach</code> is <code>False</code>, then play timings for broadcast footage will
+be used instead of coach timings.</p>
+<p>If <code>dry_run</code> is <code>True</code>, then only the first 10 plays of the game
+are sliced.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.unsliced_plays', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.unsliced_plays" class="source">
+    <pre><code>def unsliced_plays(footage_play_dir, gobj, coach=True, dry_run=False):
+    """
+    Scans the game directory inside footage_play_dir and returns a list
+    of plays that haven't been sliced yet. In particular, a play is
+    only considered sliced if the following file is readable, assuming
+    {playid} is its play id:
+
+        {footage_play_dir}/{eid}/{playid}.mp4
+
+    All plays for the game given that don't fit this criteria will be
+    returned in the list.
+
+    If the list is empty, then all plays for the game have been sliced.
+    Alternatively, `None` can be returned if there was a problem
+    retrieving the play-by-play meta data.
+
+    If `coach` is `False`, then play timings for broadcast footage will
+    be used instead of coach timings.
+
+    If `dry_run` is `True`, then only the first 10 plays of the game
+    are sliced.
+    """
+    ps = plays(gobj, coach)
+    outdir = _play_path(footage_play_dir, gobj.eid)
+
+    unsliced = []
+    if ps is None:
+        return None
+    for i, p in enumerate(ps.values()):
+        if dry_run and i >= 10:
+            break
+        pid = p.idstr()
+        if not os.access(path.join(outdir, '%s.mp4' % pid), os.R_OK):
+            unsliced.append(p)
+    return unsliced
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      
+  <div class="item">
+    <div class="name def" id="nflvid.url_status">
+    <p>def <span class="ident">url_status</span>(</p><p>url)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Returns the HTTP status as a string for the given URL. A broadcast
+URL should be considered valid if and only if its HTTP status is
+<code>200</code>.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.url_status', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.url_status" class="source">
+    <pre><code>def url_status(url):
+    """
+    Returns the HTTP status as a string for the given URL. A broadcast
+    URL should be considered valid if and only if its HTTP status is
+    `200`.
+    """
+    try:
+        resp, _ = httplib2.Http(timeout=10).request(url, 'HEAD')
+    except socket.timeout:
+        return '404'
+    return resp['status']
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+
+    <h2 class="section-title" id="header-classes">Classes</h2>
+      
+      <div class="item">
+      <p id="nflvid.Play" class="name">class <span class="ident">Play</span></p>
+      
+  
+    <div class="desc"><p>Represents the start and end timings of single play in coach or
+broadcast footage.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.Play', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.Play" class="source">
+    <pre><code>class Play (object):
+    """
+    Represents the start and end timings of single play in coach or
+    broadcast footage.
+    """
+
+    def __init__(self, start, end, playid, game_end):
+        self.start = start
+        """
+        Corresponds to the `ArchiveTCIN` or `CATIN` field in the source
+        data. `ArchiveTCIN` is used for broadcast footage while `CATIN`
+        is used for coach footage.
+        """
+
+        self.end = end
+        """
+        The end time of the play. This is typically the start time of
+        the next play (from `ArchiveTCIN` or `CATIN`). When the next
+        play isn't available, this is `None`.
+        """
+
+        self.playid = playid
+        """
+        A numeric play identifier that serves as a foreign key from an
+        `nflgame.game.Play` object to a `nflvid.Play` object.
+        """
+
+        self.game_end = game_end
+        """
+        Corresponds to the `endTime` of the broadcast footage for the
+        game that this play belongs to. It is used to compute a correct
+        offset of the start time for the play.
+        """
+
+    def idstr(self):
+        """Returns a string play id padded with zeroes."""
+        return '%04d' % int(self.playid)
+
+    def __str__(self):
+        return '(%s, %s, %s)' % (self.playid, self.start, self.end)
+</code></pre>
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#nflvid.Play">Play</a></li>
+          <li>__builtin__.object</li>
+          </ul>
+          <h3>Instance variables</h3>
+            <div class="item">
+            <p id="nflvid.Play.end" class="name">var <span class="ident">end</span></p>
+            
+
+            
+  
+    <div class="desc"><p>The end time of the play. This is typically the start time of
+the next play (from <code>ArchiveTCIN</code> or <code>CATIN</code>). When the next
+play isn't available, this is <code>None</code>.</p></div>
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="nflvid.Play.game_end" class="name">var <span class="ident">game_end</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Corresponds to the <code>endTime</code> of the broadcast footage for the
+game that this play belongs to. It is used to compute a correct
+offset of the start time for the play.</p></div>
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="nflvid.Play.playid" class="name">var <span class="ident">playid</span></p>
+            
+
+            
+  
+    <div class="desc"><p>A numeric play identifier that serves as a foreign key from an
+<code>nflgame.game.Play</code> object to a <a href="#nflvid.Play"><code>Play</code></a> object.</p></div>
+  <div class="source_cont">
+</div>
+
+            </div>
+            <div class="item">
+            <p id="nflvid.Play.start" class="name">var <span class="ident">start</span></p>
+            
+
+            
+  
+    <div class="desc"><p>Corresponds to the <code>ArchiveTCIN</code> or <code>CATIN</code> field in the source
+data. <code>ArchiveTCIN</code> is used for broadcast footage while <code>CATIN</code>
+is used for coach footage.</p></div>
+  <div class="source_cont">
+</div>
+
+            </div>
+          <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="nflvid.Play.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self, start, end, playid, game_end)</p>
+    </div>
+    
+
+    
+  
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.Play.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.Play.__init__" class="source">
+    <pre><code>def __init__(self, start, end, playid, game_end):
+    self.start = start
+    """
+    Corresponds to the `ArchiveTCIN` or `CATIN` field in the source
+    data. `ArchiveTCIN` is used for broadcast footage while `CATIN`
+    is used for coach footage.
+    """
+    self.end = end
+    """
+    The end time of the play. This is typically the start time of
+    the next play (from `ArchiveTCIN` or `CATIN`). When the next
+    play isn't available, this is `None`.
+    """
+    self.playid = playid
+    """
+    A numeric play identifier that serves as a foreign key from an
+    `nflgame.game.Play` object to a `nflvid.Play` object.
+    """
+    self.game_end = game_end
+    """
+    Corresponds to the `endTime` of the broadcast footage for the
+    game that this play belongs to. It is used to compute a correct
+    offset of the start time for the play.
+    """
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="nflvid.Play.idstr">
+    <p>def <span class="ident">idstr</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Returns a string play id padded with zeroes.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.Play.idstr', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.Play.idstr" class="source">
+    <pre><code>def idstr(self):
+    """Returns a string play id padded with zeroes."""
+    return '%04d' % int(self.playid)
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      </div>
+      </div>
+      
+      <div class="item">
+      <p id="nflvid.PlayTime" class="name">class <span class="ident">PlayTime</span></p>
+      
+  
+    <div class="desc"><p>Represents a footage time point retrieved from the source XML
+meta data.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.PlayTime', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.PlayTime" class="source">
+    <pre><code>class PlayTime (object):
+    """
+    Represents a footage time point retrieved from the source XML
+    meta data.
+    """
+    __pdoc__['hh'] = 'The hour portion of the play time.'
+    __pdoc__['mm'] = 'The minutes portion of the play time.'
+    __pdoc__['ss'] = 'The seconds portion of the play time.'
+    __pdoc__['milli'] = 'The milliseconds portion of the play time.'
+
+    def __init__(self, point=None, seconds=None):
+        """
+        Construct a PlayTime object given a `point` in time in the
+        format `HH:MM:SS:MMM` where `MMM` can be either 2 or 3 digits.
+
+        Alternatively, `seconds` can be provided (which may be a
+        float).
+        """
+        if seconds is not None:
+            milli = int(1000 * (seconds - math.floor(seconds)))
+
+            seconds = int(math.floor(seconds))
+            hh = seconds / 3600
+
+            seconds -= hh * 3600
+            mm = seconds / 60
+
+            seconds -= mm * 60
+            ss = seconds
+
+            self.hh, self.mm, self.ss, self.milli = hh, mm, ss, milli
+            self.__point = '%02d:%02d:%02d:%03d' % (hh, mm, ss, milli)
+            return
+
+        self.__point = point
+        self.__coach = False
+
+        try:
+            parts = self.__point.split(':')
+            if len(parts[3]) == 3:
+                self.__coach = True
+            parts = map(int, parts)
+        except ValueError:
+            assert False, 'Bad play time format: %s' % self.__point
+
+        if len(parts) != 4:
+            assert False, 'Expected 4 parts but got %d in: %s' \
+                % (len(parts), self.__point)
+
+        self.hh, self.mm, self.ss, self.milli = parts
+
+        # I believe milliseconds is given in tens of milliseconds
+        # for the ArchiveTCIN node. But the CATIN node (coach timing)
+        # provides regular milliseconds.
+        if not self.__coach:
+            self.milli *= 10
+
+    def add_seconds(self, seconds):
+        """
+        Returns a new PlayTime with `seconds` (int or float) added to
+        self.
+        """
+        return PlayTime(seconds=self.fractional() + seconds)
+
+    def seconds(self):
+        """
+        Returns this time point rounded to the nearest second.
+        """
+        secs = (self.hh * 60 * 60) + (self.mm * 60) + self.ss
+        if self.milli >= 50:
+            secs += 1
+        return secs
+
+    def fractional(self):
+        """
+        Returns this time point as fractional seconds based on
+        milliseconds.
+        """
+        secs = (self.hh * 60 * 60) + (self.mm * 60) + self.ss
+        secs = (1000 * secs) + self.milli
+        return float(secs) / 1000.0
+
+    def __cmp__(self, other):
+        return cmp(self.fractional(), other.fractional())
+
+    def __sub__(self, other):
+        """
+        Returns the difference rounded to nearest second between two
+        time points.  The `other` time point must take place before the
+        current time point.
+        """
+        assert other <= self, '%s is not <= than %s' % (other, self)
+        return int(round(self.fractional() - other.fractional()))
+
+    def __str__(self):
+        return self.__point
+</code></pre>
+  </div>
+</div>
+
+
+      <div class="class">
+          <h3>Ancestors (in MRO)</h3>
+          <ul class="class_list">
+          <li><a href="#nflvid.PlayTime">PlayTime</a></li>
+          <li>__builtin__.object</li>
+          </ul>
+          <h3>Methods</h3>
+            
+  <div class="item">
+    <div class="name def" id="nflvid.PlayTime.__init__">
+    <p>def <span class="ident">__init__</span>(</p><p>self, point=None, seconds=None)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Construct a PlayTime object given a <code>point</code> in time in the
+format <code>HH:MM:SS:MMM</code> where <code>MMM</code> can be either 2 or 3 digits.</p>
+<p>Alternatively, <code>seconds</code> can be provided (which may be a
+float).</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.PlayTime.__init__', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.PlayTime.__init__" class="source">
+    <pre><code>def __init__(self, point=None, seconds=None):
+    """
+    Construct a PlayTime object given a `point` in time in the
+    format `HH:MM:SS:MMM` where `MMM` can be either 2 or 3 digits.
+    Alternatively, `seconds` can be provided (which may be a
+    float).
+    """
+    if seconds is not None:
+        milli = int(1000 * (seconds - math.floor(seconds)))
+        seconds = int(math.floor(seconds))
+        hh = seconds / 3600
+        seconds -= hh * 3600
+        mm = seconds / 60
+        seconds -= mm * 60
+        ss = seconds
+        self.hh, self.mm, self.ss, self.milli = hh, mm, ss, milli
+        self.__point = '%02d:%02d:%02d:%03d' % (hh, mm, ss, milli)
+        return
+    self.__point = point
+    self.__coach = False
+    try:
+        parts = self.__point.split(':')
+        if len(parts[3]) == 3:
+            self.__coach = True
+        parts = map(int, parts)
+    except ValueError:
+        assert False, 'Bad play time format: %s' % self.__point
+    if len(parts) != 4:
+        assert False, 'Expected 4 parts but got %d in: %s' \
+            % (len(parts), self.__point)
+    self.hh, self.mm, self.ss, self.milli = parts
+    # I believe milliseconds is given in tens of milliseconds
+    # for the ArchiveTCIN node. But the CATIN node (coach timing)
+    # provides regular milliseconds.
+    if not self.__coach:
+        self.milli *= 10
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="nflvid.PlayTime.add_seconds">
+    <p>def <span class="ident">add_seconds</span>(</p><p>self, seconds)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Returns a new PlayTime with <code>seconds</code> (int or float) added to
+self.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.PlayTime.add_seconds', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.PlayTime.add_seconds" class="source">
+    <pre><code>def add_seconds(self, seconds):
+    """
+    Returns a new PlayTime with `seconds` (int or float) added to
+    self.
+    """
+    return PlayTime(seconds=self.fractional() + seconds)
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="nflvid.PlayTime.fractional">
+    <p>def <span class="ident">fractional</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Returns this time point as fractional seconds based on
+milliseconds.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.PlayTime.fractional', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.PlayTime.fractional" class="source">
+    <pre><code>def fractional(self):
+    """
+    Returns this time point as fractional seconds based on
+    milliseconds.
+    """
+    secs = (self.hh * 60 * 60) + (self.mm * 60) + self.ss
+    secs = (1000 * secs) + self.milli
+    return float(secs) / 1000.0
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+            
+  <div class="item">
+    <div class="name def" id="nflvid.PlayTime.seconds">
+    <p>def <span class="ident">seconds</span>(</p><p>self)</p>
+    </div>
+    
+
+    
+  
+    <div class="desc"><p>Returns this time point rounded to the nearest second.</p></div>
+  <div class="source_cont">
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-nflvid.PlayTime.seconds', this);">Show source &equiv;</a></p>
+  <div id="source-nflvid.PlayTime.seconds" class="source">
+    <pre><code>def seconds(self):
+    """
+    Returns this time point rounded to the nearest second.
+    """
+    secs = (self.hh * 60 * 60) + (self.mm * 60) + self.ss
+    if self.milli >= 50:
+        secs += 1
+    return secs
+</code></pre>
+  </div>
+</div>
+
+  </div>
+  
+      </div>
+      </div>
+
+    <h2 class="section-title" id="header-submodules">Sub-modules</h2>
+      <div class="item">
+      <p class="name"><a href="version.m.html">nflvid.version</a></p>
+      
+  
+
+      </div>
+      <div class="item">
+      <p class="name"><a href="vlc.m.html">nflvid.vlc</a></p>
+      
+  
+    <div class="desc"><p>This submodule exposes a couple of convenience functions for opening a
+sequence of plays with <code>vlc</code>. In order to use this submodule, you must
+have <a href="https://github.com/BurntSushi/nfldb">nfldb</a> installed.</p>
+<p>This module is for picky users where just running <code>vlc play1.mp4
+play2.mp4 ...</code> isn't enough. Na...</p></div>
+
+      </div>
+  </section>
+
+    </article>
+  <div class="clear"> </div>
+  <footer id="footer">
+    <p>
+      Documentation generated by
+      <a href="https://github.com/BurntSushi/pdoc">pdoc 0.3.1</a>
+    </p>
+
+    <p>pdoc is in the public domain with the
+      <a href="http://unlicense.org">UNLICENSE</a></p>
+
+    <p>Design by <a href="http://nadh.in">Kailash Nadh</a></p>
+  </footer>
+</div>
+</body>
+</html>
