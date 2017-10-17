@@ -1,3 +1,6 @@
+**This project is unmaintained. The code may still be useful and parts of it
+may still work, but you're on your own.**
+
 `nflvid` is a Python package that facilates the processing of NFL game footage. 
 In particular, this library provides routines to do the following:
 
